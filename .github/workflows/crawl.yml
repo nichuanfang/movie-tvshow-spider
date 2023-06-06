@@ -62,7 +62,7 @@ jobs:
         with:
           location: nichuanfang/movie-tvshow-spider
           name: ALIGO_LOGIN_DATA_TEST
-          value: ${{ steps.execute.outputs }}
+          value: ${{ steps.execute.outputs.* }}
           pa_token: ${{ secrets.GH_TOKEN }}
 
       - name: pull
