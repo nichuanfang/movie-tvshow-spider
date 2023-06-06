@@ -29,8 +29,9 @@ jobs:
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
-          
+
       - name: test kodi-tmdb
+        working-directory: kodi-tmdb
         run: |
           cd movies
           touch '美国队长3 (2016).mkv'
