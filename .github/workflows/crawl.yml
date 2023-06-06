@@ -20,12 +20,12 @@ jobs:
       - name: use kodi-metadata-tmdb-cli
         run: |
           cd kodi-tmdb
-          unzip kodi-tmdb.zip
           mkdir -p movies
           mkdir -p shows
           mkdir -p music-videos
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
+          echo 'kodi-tmdb is started!'
 
       # - name: prepare python environment(v3.11)
       #   uses: actions/setup-python@v4
