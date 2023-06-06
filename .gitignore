@@ -158,8 +158,13 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
-kodi-tmdb/kodi-tmdb.zip
-kodi-tmdb/movies/*
-kodi-tmdb/tv-shows/*
-kodi-tmdb/music-videos/*
 aliyundrive/token
+
+kodi-tmdb/movies/*
+!kodi-tmdb/movies/__init__.py
+
+kodi-tmdb/shows/*
+!kodi-tmdb/shows/__init__.py
+
+kodi-tmdb/music-videos/*
+!kodi-tmdb/music-videos/__init__.py

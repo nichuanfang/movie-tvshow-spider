@@ -23,13 +23,9 @@ jobs:
       - name: use kodi-metadata-tmdb-cli
         working-directory: kodi-tmdb
         run: |
-          mkdir -p movies
-          mkdir -p shows
-          mkdir -p music-videos
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
-          pwd
 
       # - name: test kodi-tmdb
       #   working-directory: kodi-tmdb
