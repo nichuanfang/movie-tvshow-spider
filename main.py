@@ -27,8 +27,6 @@ def prepare_for_aligo(base64_userdata:str):
 
 def crawling():
     aligo = Aligo()   
-    personal_info = aligo.get_personal_info()
-    logger.info(f'个人信息:{personal_info}')
 
 
 if __name__=='__main__':

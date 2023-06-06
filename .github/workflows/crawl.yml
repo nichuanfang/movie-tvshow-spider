@@ -53,17 +53,14 @@ jobs:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
           python main.py $ALIGO_LOGIN_DATA
-          echo 'hello world' >> $GITHUB_OUTPUT
-          
-          
 
-      - name: refresh aliyundrive token
-        uses: jon-grey/github-actions-secrets-creator@v1
-        with:
-          location: nichuanfang/movie-tvshow-spider
-          name: ALIGO_LOGIN_DATA_TEST
-          value: ${{ steps.execute.outputs.* }}
-          pa_token: ${{ secrets.GH_TOKEN }}
+      # - name: refresh aliyundrive token
+      #   uses: jon-grey/github-actions-secrets-creator@v1
+      #   with:
+      #     location: nichuanfang/movie-tvshow-spider
+      #     name: ALIGO_LOGIN_DATA_TEST
+      #     value: ${{ steps.execute.outputs }}
+      #     pa_token: ${{ secrets.GH_TOKEN }}
 
       - name: pull
         run: |
