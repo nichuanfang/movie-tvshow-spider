@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
@@ -26,6 +29,13 @@ jobs:
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
+          
+      - name: test kodi-tmdb
+        run: |
+          cd movies
+          touch '美国队长3 (2016).mkv'
+          sleep 3s
+          ll
 
       # - name: prepare python environment(v3.11)
       #   uses: actions/setup-python@v4
@@ -41,15 +51,20 @@ jobs:
       #     python main.py
       #     pwd
 
-      - name: git commit
+      - name: pull
+        run: |
+          git checkout .
+          git pull --allow-unrelated-histories
+
+      - name: keep alive
         uses: Smart-Transportation/push@v1.3
+        continue-on-error: true
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           branch: 'main'
           author_email: 'f18326186224@gmail.com'
           author_name: 'nichuanfang'
-          message: '🐳 chore: '
-
+          message: '🐳 chore: keep action alive'
   # BARK通知 可选
   test_bark_notice:
     uses: nichuanfang/.github/.github/workflows/reuse_bark_notice.yml@main
