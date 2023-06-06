@@ -51,8 +51,8 @@ jobs:
         env:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
-          python main.py 
-          cat /home/runner/.aligo/aligo.json $ALIGO_LOGIN_DATA
+          python main.py $ALIGO_LOGIN_DATA
+          cat /home/runner/.aligo/aligo.json 
 
       - name: pull
         run: |
