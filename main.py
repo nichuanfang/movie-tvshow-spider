@@ -59,7 +59,8 @@ def crawl_movie(ali_drive:Alidrive):
                 # 电影
                 movie_name = movie.name
                 movie_names.append(movie_name)
-                subprocess.call(f'touch kodi-tmdb/movies/"{movie_name}"',shell=False)
+                os.system(f'touch ./kodi-tmdb/movies/"{movie_name}"')
+                # subprocess.call(f'touch kodi-tmdb/movies/"{movie_name}"',shell=False)
                 sleep(3)
             else:
                 # 电影集
