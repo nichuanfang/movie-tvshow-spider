@@ -34,7 +34,7 @@ if __name__=='__main__':
         base64_userdata = sys.argv[1]
     except:
         base64_userdata = ''
-    
+    logger.info(f'加密信息:{base64_userdata}')
     prepare_for_aligo(base64_userdata)
     
     
