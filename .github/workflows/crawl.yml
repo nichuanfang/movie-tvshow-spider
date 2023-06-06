@@ -53,7 +53,6 @@ jobs:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
           python main.py $ALIGO_LOGIN_DATA
-          sleep 5s
           ls kodi-tmdb/movies
 
       - name: pull

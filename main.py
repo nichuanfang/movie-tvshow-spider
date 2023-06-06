@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 # coding=utf-8
+from time import sleep
 from aligo import Aligo
 from aliyundrive.ali_drive import Alidrive
 from loguru import logger
@@ -59,6 +60,7 @@ def crawl_movie(ali_drive:Alidrive):
                 movie_name = movie.name
                 movie_names.append(movie_name)
                 subprocess.call(f'touch kodi-tmdb/movies/{movie_name}',shell=False)
+                sleep(3)
             else:
                 # 电影集
                 pass
