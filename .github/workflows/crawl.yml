@@ -21,8 +21,8 @@ jobs:
         id: setup-ffmpeg
 
       - name: use kodi-metadata-tmdb-cli
+        working-directory: kodi-tmdb
         run: |
-          cd kodi-tmdb
           mkdir -p movies
           mkdir -p shows
           mkdir -p music-videos
