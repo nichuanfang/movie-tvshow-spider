@@ -53,18 +53,35 @@ def crawl_movie(ali_drive:Alidrive):
     tmm_movies = ali_drive.get_folder_by_path('tmm/tmm-movies')
     movie_names = []
     if type(tmm_movies) == BaseFile:
-        movies = ali_drive.get_file_list(tmm_movies.file_id)
-        for movie in movies:
-            if movie.type == 'file':
-                # 电影
-                movie_name = movie.name
-                movie_names.append(movie_name)
-                os.system(f'touch ./kodi-tmdb/movies/"{movie_name}"')
-                # subprocess.call(f'touch kodi-tmdb/movies/"{movie_name}"',shell=False)
-                sleep(3)
-            else:
-                # 电影集
-                pass
+        
+        movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
+        for movie_folder in movie_folders:
+                
+            
+            movies = ali_drive.get_file_list(movie_folder.file_id)
+            for movie in movies:
+                if movie.type == 'file':
+                    # 电影
+                    movie_name = movie.name
+                    movie_names.append(movie_name)
+                    os.system(f'touch ./kodi-tmdb/movies/"{movie_name}"')
+                    sleep(3)
+                    # 上传电影图片与nfo
+                    for dirpath, dirnames, filenames in os.walk('./kodi-tmdb/movies'):
+                        for file_name in filenames:
+                            with open(f'{dirpath}/{file_name}','rb') as image_file:
+                                ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',)
+                                pass
+                            # if file_name == f'{movie_name.split(".")[0]}.nfo':
+                            #     open(f'{dirpath}/{file_name}')
+                            #     pass
+                            # elif file_name == f'{movie_name.split(".")[0]}-fanart.jpg':
+                            #     pass
+                            # elif file_name == f'{movie_name.split(".")[0]}-poster.jpg':
+                            #     pass
+                else:
+                    # 电影集
+                    pass
 
 
 
