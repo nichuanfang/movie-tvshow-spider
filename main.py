@@ -7,4 +7,5 @@ from pathlib import Path
 
 # aligo = Aligo()
 
+# github workflow:   /home/runner
 logger.info(f'Path.home: {Path.home()}')

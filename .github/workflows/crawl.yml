@@ -26,6 +26,7 @@ jobs:
       - name: execute
         run: |
           python main.py
+          pwd
 
       - name: git commit
         uses: Smart-Transportation/push@v1.3
