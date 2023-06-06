@@ -14,19 +14,32 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: prepare python environment(v3.11)
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
 
-      - name: pip install
-        run: pip install -r requirements.txt
-
-      - name: execute
+      - name: use kodi-metadata-tmdb-cli
         run: |
-          python main.py
-          pwd
+          cd kodi-tmdb
+          unzip kodi-tmdb.zip
+          mkdir -p movies
+          mkdir -p shows
+          mkdir -p music-videos
+          chmod +x kodi-tmdb-linux-amd64
+          ./kodi-tmdb-linux-amd64 &
+
+      # - name: prepare python environment(v3.11)
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.11'
+      #     cache: 'pip'
+
+      # - name: pip install
+      #   run: pip install -r requirements.txt
+
+      # - name: execute
+      #   run: |
+      #     python main.py
+      #     pwd
 
       - name: git commit
         uses: Smart-Transportation/push@v1.3

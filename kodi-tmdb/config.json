@@ -1,0 +1,56 @@
+{
+    "log": {
+        "mode": 1,
+        "level": 2,
+        "file": "/tmp/tmdb-collector.log"
+    },
+    "tmdb": {
+        "api_host": "https://api.themoviedb.org",
+        "image_host": "https://image.tmdb.org",
+        "api_key": "a52fb1bab999ef3918b3e2864d584cb6",
+        "language": "zh-CN",
+        "proxy": "",
+        "rating": "US"
+    },
+    "collector": {
+        "watcher": true,
+        "cron_seconds": 3600,
+        "skip_folders": [
+            "tmdb",
+            "@eaDir",
+            "CERTIFICATE",
+            "$RECYCLE.BIN",
+            "RECYCLER",
+            "SYSTEM VOLUME INFORMATION",
+            "@EADIR",
+            "ADV_OBJ",
+            "PLEX VERSIONS",
+            "Sample",
+            "gallery",
+            "metadata"
+        ],
+        "movies_nfo_mode": 2,
+        "movies_dir": [
+            "movies"
+        ],
+        "shows_dir": [
+            "shows"
+        ],
+        "music_videos_dir": [
+            "music-videos"
+        ]
+    },
+    "kodi": {
+        "enable": false,
+        "clean_library": true,
+        "json_rpc": "http://192.168.1.123:8080/jsonrpc",
+        "timeout": 1,
+        "username": "kodi",
+        "password": "123456"
+    },
+    "ffmpeg": {
+        "max_worker": 4,
+        "ffmpeg": "/usr/local/ffmpeg-5.0.1-amd64-static/ffmpeg",
+        "ffprobe": "/usr/local/ffmpeg-5.0.1-amd64-static/ffprobe"
+    }
+}
