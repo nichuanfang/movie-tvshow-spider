@@ -30,13 +30,13 @@ jobs:
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
 
-      - name: test kodi-tmdb
-        working-directory: kodi-tmdb
-        run: |
-          cd movies
-          touch '美国队长3 (2016).mkv'
-          sleep 3s
-          ls -a
+      # - name: test kodi-tmdb
+      #   working-directory: kodi-tmdb
+      #   run: |
+      #     cd movies
+      #     touch '美国队长3 (2016).mkv'
+      #     sleep 3s
+      #     ls -a
 
       - name: prepare python environment(v3.11)
         uses: actions/setup-python@v4
@@ -53,6 +53,8 @@ jobs:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
           python main.py $ALIGO_LOGIN_DATA
+          sleep 5s
+          ls kodi-tmdb/movies
 
       - name: pull
         run: |
