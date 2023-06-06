@@ -25,6 +25,7 @@ jobs:
 
       - name: execute
         run: |
+          python main.py
 
       - name: git commit
         uses: Smart-Transportation/push@v1.3
