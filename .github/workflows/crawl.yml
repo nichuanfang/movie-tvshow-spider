@@ -53,7 +53,7 @@ jobs:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
           python main.py $ALIGO_LOGIN_DATA
-          cat /home/runner/.aligo/aligo.json >> $GITHUB_OUTPUT
+          echo 'hello world' >> $GITHUB_OUTPUT
           
           
 
