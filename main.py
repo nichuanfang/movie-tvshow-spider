@@ -58,7 +58,7 @@ def crawl_movie(ali_drive:Alidrive):
                 # 电影
                 movie_name = movie.name
                 movie_names.append(movie_name)
-                subprocess.call(f'touch kodi-tmdb/movies/{movie_name}',shell=True)
+                subprocess.call(f'touch kodi-tmdb/movies/{movie_name}',shell=False)
             else:
                 # 电影集
                 pass
@@ -74,7 +74,7 @@ if __name__=='__main__':
     try:
         base64_userdata = sys.argv[1]
     except:
-        base64_userdata = ''
+        base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
     prepare_for_aligo(base64_userdata) # type: ignore
     
     crawling()
