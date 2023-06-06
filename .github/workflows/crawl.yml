@@ -29,6 +29,7 @@ jobs:
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
+          pwd
 
       # - name: test kodi-tmdb
       #   working-directory: kodi-tmdb
