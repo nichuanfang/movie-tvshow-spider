@@ -17,26 +17,26 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      # - uses: FedericoCarboni/setup-ffmpeg@v2
-      #   id: setup-ffmpeg
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
 
-      # - name: use kodi-metadata-tmdb-cli
-      #   run: |
-      #     cd kodi-tmdb
-      #     mkdir -p movies
-      #     mkdir -p shows
-      #     mkdir -p music-videos
-      #     chmod +x kodi-tmdb-linux-amd64
-      #     ./kodi-tmdb-linux-amd64 &
-      #     echo 'kodi-tmdb is started!'
+      - name: use kodi-metadata-tmdb-cli
+        run: |
+          cd kodi-tmdb
+          mkdir -p movies
+          mkdir -p shows
+          mkdir -p music-videos
+          chmod +x kodi-tmdb-linux-amd64
+          ./kodi-tmdb-linux-amd64 &
+          echo 'kodi-tmdb is started!'
 
-      # - name: test kodi-tmdb
-      #   working-directory: kodi-tmdb
-      #   run: |
-      #     cd movies
-      #     touch '美国队长3 (2016).mkv'
-      #     sleep 3s
-      #     ls -a
+      - name: test kodi-tmdb
+        working-directory: kodi-tmdb
+        run: |
+          cd movies
+          touch '美国队长3 (2016).mkv'
+          sleep 3s
+          ls -a
 
       - name: prepare python environment(v3.11)
         uses: actions/setup-python@v4
@@ -53,14 +53,6 @@ jobs:
           ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
         run: |
           python main.py $ALIGO_LOGIN_DATA
-
-      # - name: refresh aliyundrive token
-      #   uses: jon-grey/github-actions-secrets-creator@v1
-      #   with:
-      #     location: nichuanfang/movie-tvshow-spider
-      #     name: ALIGO_LOGIN_DATA_TEST
-      #     value: ${{ steps.execute.outputs }}
-      #     pa_token: ${{ secrets.GH_TOKEN }}
 
       - name: pull
         run: |
