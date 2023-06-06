@@ -36,7 +36,7 @@ jobs:
           cd movies
           touch '美国队长3 (2016).mkv'
           sleep 3s
-          ll
+          ls -a
 
       # - name: prepare python environment(v3.11)
       #   uses: actions/setup-python@v4
