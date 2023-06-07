@@ -59,34 +59,38 @@ def crawl_movie(ali_drive:Alidrive):
         
         movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
         for movie_folder in movie_folders:
-            
+            # 判断该文件夹下面是否直接有视频文件 来区分电影和电影集
             movie_folder_files = ali_drive.get_file_list(movie_folder.file_id)
-            for movie_folder_file in movie_folder_files:
-                if movie_folder_file.type == 'file':
-                    if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
-                        # 电影mkv等视频文件名
-                        movie_video = movie_folder_file.name
-                        # 电影名(不带扩展名)
-                        movie_name = movie_video.rsplit('.',1)[0]
-                        movie_names.append(movie_name)
-                        
-                        actors_folder_exists = False
-                        # 判断该电影文件夹是否存在nfo文件
-                        if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
-                            os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
-                            # 等待刮削完成
-                            sleep(3)
-                            # 上传电影图片与nfo
-                            for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
-                                # 上传图片
-                                for file_name in filenames:
-                                    if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
-                                        logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                        ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                                
-                else:
-                    # 电影集
-                    pass
+            if bool(list(filter(lambda x: x.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')),movie_folder_files))):
+                # 电影文件夹
+                for movie_folder_file in movie_folder_files:
+                    if movie_folder_file.type == 'file':
+                        if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                            # 电影mkv等视频文件名
+                            movie_video = movie_folder_file.name
+                            # 电影名(不带扩展名)
+                            movie_name = movie_video.rsplit('.',1)[0]
+                            movie_names.append(movie_name)
+                            
+                            # 判断该电影文件夹是否存在nfo文件
+                            if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
+                                os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
+                                # 等待刮削完成
+                                logger.info(f'开始刮削电影{movie_name}...')
+                                sleep(3)
+                                # 上传电影图片与nfo
+                                for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
+                                    # 上传图片
+                                    for file_name in filenames:
+                                        if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
+                                            logger.info(f'开始上传{dirpath}/{file_name}图片...')
+                                            ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)    
+                                logger.success(f'电影{movie_name}刮削成功!')
+            else:
+                # 电影集文件夹
+                # 获取电影集下面的电影
+                # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
+                pass
             
 
 
