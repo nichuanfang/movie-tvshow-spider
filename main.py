@@ -12,6 +12,7 @@ import json
 import sys
 import subprocess
 import os
+from concurrent.futures  import Executor,ProcessPoolExecutor,Future,ThreadPoolExecutor
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
@@ -85,7 +86,7 @@ def crawl_movie(ali_drive:Alidrive):
                                 if not actors_folder_exists:
                                     # 创建.actors文件夹
                                     createFileResponse = ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
-                                    actors_folder_exists = createFileResponse.exist
+                                    actors_folder_exists = True
                                     # 下载演员图片
                                     download_movie_actors(movie_video)
                 else:
