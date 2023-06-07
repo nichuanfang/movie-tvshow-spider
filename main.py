@@ -258,6 +258,12 @@ def crawl_shows(ali_drive:Alidrive):
             which_season = extract_season(season.name)
             if which_season == -1:
                 continue
+            
+            # 上传季图片
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id)
+            except:
+                continue
             episodes = ali_drive.get_file_list(season.file_id)
             
             # 保证剧集是能排序的 不用重命名
