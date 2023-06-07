@@ -4,6 +4,7 @@ import sys
 import base64
 import json
 
+# kodi-tmdb工具的配置文件的base64字符串
 KODI_TMDB_CONFIG = sys.argv[1]
 
 kodi_tmdb_config_str = base64.b64decode(

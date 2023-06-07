@@ -201,6 +201,7 @@ def crawl_shows(ali_drive:Alidrive):
     
 if __name__=='__main__':
     try:
+        # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
     except:
         base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
