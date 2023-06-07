@@ -61,8 +61,9 @@ def crawl_movie(ali_drive:Alidrive):
             for movie_folder_file in movie_folder_files:
                 if movie_folder_file.type == 'file':
                     if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
-                        # 电影
+                        # 电影mkv等视频文件名
                         movie_video = movie_folder_file.name
+                        # 电影名(不带扩展名)
                         movie_name = movie_video.rsplit('.',1)[0]
                         movie_names.append(movie_name)
                         
@@ -79,6 +80,11 @@ def crawl_movie(ali_drive:Alidrive):
                                         logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                         ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 # 上传演员图片
+                                
+                                # 创建.actors文件夹
+                                ali_drive.aligo.create_folder('.actors',movie_folder.file_id)
+                                # 获取演员图片链接
+                                movie_actors(movie_video)
                                 pass
                 else:
                     # 电影集
@@ -89,6 +95,10 @@ def crawl_movie(ali_drive:Alidrive):
 def crawl_shows(ali_drive:Alidrive):
     pass 
     
+
+def movie_actors(movie_video:str):
+    with open(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json','r+',encoding='utf-8') as movie_json_file:
+        pass
 
 
 if __name__=='__main__':
