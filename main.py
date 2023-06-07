@@ -54,6 +54,7 @@ def crawl_movie(ali_drive:Alidrive):
       # 根据tmdb文件夹的 文件名.movie.json 读取演员图片链接  下载演员图片 上传至当前电影文件夹下的.actors文件夹下
       # 刮削电影文件的中文字幕 上传到同文件夹下
     tmm_movies = ali_drive.get_folder_by_path('tmm/tmm-movies')
+    movies:BaseFile = ali_drive.get_folder_by_path('movies') # type: ignore
     if type(tmm_movies) == BaseFile:
         
         movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
@@ -73,10 +74,6 @@ def crawl_movie(ali_drive:Alidrive):
                             # 判断该电影文件夹是否存在nfo文件
                             if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                                 os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
-                                # 创建电影文件夹
-                                os.system(f'mkdir -p ./kodi-tmdb/movies/"{movie_folder.name}"')
-                                os.system(f'touch ./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
-                                os.system(f'echo "hello" > ./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
                                 # 等待刮削完成
                                 logger.info(f'开始刮削电影:  {movie_name}...')
                                 sleep(5)
@@ -89,25 +86,13 @@ def crawl_movie(ali_drive:Alidrive):
                                             ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
+                                    # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
+                                    ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id,overwrite=True)
                                 else:
                                     logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
-                                # 刮削电影字幕
-                                logger.info(f'开始刮削电影:  {movie_name}字幕...')
-                                target = mod_shooter.seekTarget(f'./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
-                                logger.info(f'target: {target}')
-                                #3. 获取目标文件的特征数据
-                                sHash = mod_shooter.shooterHash(target)
 
-                                #4. 调用api 获得字幕文件清单
-                                data_json = mod_shooter.getSubsJSON(target, sHash)
-                                # 备注：我认为有必要保存这个接口返回的列表数据，因为包含delay值，至少在字幕出现位移解决前应该保留
-                                #print(data_json)
-                                links = mod_shooter.parseFromResult(data_json.decode()) #bytes to string
                                 
-                                logger.info(f'刮削的字幕清单与json: {data_json}  {links}')
-                                logger.success(f'电影:  {movie_name}字幕刮削成功!')
-                                # 上传成功就将该文件夹移动到movies文件夹中
-                                # 如果movies有同名文件夹 直接覆盖
+                                
                                 
             else:
                 # 电影集文件夹
