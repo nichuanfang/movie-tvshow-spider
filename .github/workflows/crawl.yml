@@ -31,9 +31,11 @@ jobs:
 
       - name: use kodi-metadata-tmdb-cli
         working-directory: kodi-tmdb
+        env:
+          KODI_TMDB_CONFIG: ${{ secrets.KODI_TMDB_CONFIG }}
         run: |
+          python handle_config.py $KODI_TMDB_CONFIG
           chmod +x kodi-tmdb-linux-amd64
-          python handle_config.py
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
 

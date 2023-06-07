@@ -92,7 +92,6 @@ if __name__=='__main__':
         kodi_tmdb_config = sys.argv[2]
     except:
         base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
-        kodi_tmdb_config = open(f'kodi-tmdb/kodi_tmdb_config','r+',encoding='utf-8').read()
     prepare_for_aligo(base64_userdata) # type: ignore
     
     crawling()
