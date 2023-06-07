@@ -65,15 +65,15 @@ def crawl_movie(ali_drive:Alidrive):
                         movie_name = movie_folder_file.name
                         movie_names.append(movie_name)
                         os.system(f'touch ./kodi-tmdb/movies/"{movie_name}"')
+                        # 等待刮削完成
                         sleep(3)
                         # 上传电影图片与nfo
                         for dirpath, dirnames, filenames in os.walk('./kodi-tmdb/movies'):
                             # 上传图片
                             for file_name in filenames:
-                                if file_name.endswith('.jpg'):
+                                if file_name.startswith(f'{movie_name}') and file_name.endswith('.jpg'):
                                     logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                     ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                        pass
                 else:
                     # 电影集
                     pass
