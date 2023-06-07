@@ -76,6 +76,7 @@ def crawl_movie(ali_drive:Alidrive):
                                 # 创建电影文件夹
                                 os.system(f'mkdir -p ./kodi-tmdb/movies/"{movie_folder.name}"')
                                 os.system(f'touch ./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
+                                os.system(f'echo "hello" > ./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
                                 # 等待刮削完成
                                 logger.info(f'开始刮削电影:  {movie_name}...')
                                 sleep(5)
@@ -92,12 +93,8 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
                                 # 刮削电影字幕
                                 logger.info(f'开始刮削电影:  {movie_name}字幕...')
-                                target:str = mod_shooter.seekTarget(f'./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"') # type: ignore
-                                #print(target)
-                                if target is None:
-                                    # mod_shooter.setMark(targetPath, markFile)
-                                    sys.exit("没有需要处理的目标")
-
+                                target = mod_shooter.seekTarget(f'./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
+                                logger.info(f'target: {target}')
                                 #3. 获取目标文件的特征数据
                                 sHash = mod_shooter.shooterHash(target)
 
