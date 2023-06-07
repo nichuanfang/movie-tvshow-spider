@@ -3,7 +3,7 @@
 from time import sleep
 from aligo import Aligo
 from aliyundrive.ali_drive import Alidrive
-from loguru._logger import Logger,Core
+from loguru import logger
 import base64
 from aligo.types.BaseFile import BaseFile
 from aligo.response.CreateFileResponse import CreateFileResponse
@@ -13,19 +13,6 @@ import sys
 import subprocess
 import os
 from concurrent.futures  import Executor,ProcessPoolExecutor,Future,ThreadPoolExecutor
-
-logger = Logger(
-    core=Core(),
-    exception=None,
-    depth=0,
-    record=False,
-    lazy=False,
-    colors=True,
-    raw=False,
-    capture=True,
-    patchers=[],
-    extra={},
-)
 
 BASE_IMAGE_URL = 'https://www.themoviedb.org/t/p/original'
 
