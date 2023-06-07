@@ -96,7 +96,7 @@ def crawl_movie(ali_drive:Alidrive):
                                             dest_id = collection_res.file_id
                                         else:
                                             # 创建电影集
-                                            create_res = ali_drive.aligo.create_folder(f'movies/{extract_res[1]}',movies.file_id)
+                                            create_res = ali_drive.aligo.create_folder(f'{extract_res[1]}',movies.file_id)
                                             dest_id = create_res.file_id
                                     move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=dest_id,new_name=new_name)
                                     try:
