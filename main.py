@@ -86,12 +86,13 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
                                     # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                     logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
-                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id)
+                                    new_name = extract_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id,new_name=new_name)
                                     try:
                                         file_id = move_res.file_id
-                                        logger.success(f'tmm电影文件夹: {movie_folder.name}-{file_id}已成功移动至movies')
+                                        logger.success(f'tmm电影文件夹: {new_name}-{file_id}已成功移动至movies')
                                     except:
-                                        logger.warning(f'tmm电影文件夹: {movie_folder.name}移动至movies失败,movies存在相同的文件夹!')
+                                        logger.warning(f'tmm电影文件夹: {new_name}移动至movies失败,movies存在相同的文件夹!')
                                         ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
                                     
                                 else:
@@ -139,12 +140,13 @@ def crawl_movie(ali_drive:Alidrive):
                                         # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                         logger.info(f'开始移动tmm电影集文件夹: {movie_folder.name}/{movie_collection_folder.name}至movies')
                                         
-                                        move_res = ali_drive.aligo.move_file(file_id=movie_collection_folder.file_id,to_parent_file_id=movie_collection_id) # type: ignore
+                                        new_name = extract_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                        move_res = ali_drive.aligo.move_file(file_id=movie_collection_folder.file_id,to_parent_file_id=movie_collection_id,new_name=new_name) # type: ignore
                                         try:
                                             file_id = move_res.file_id
-                                            logger.success(f'tmm电影集文件夹: {movie_collection_folder.name}-{file_id}已成功移动至movies')
+                                            logger.success(f'tmm电影集文件夹: {new_name}-{file_id}已成功移动至movies')
                                         except:
-                                            logger.warning(f'tmm电影集文件夹: {movie_collection_folder.name}移动至movies失败,movies存在相同的文件夹!')
+                                            logger.warning(f'tmm电影集文件夹: {new_name}移动至movies失败,movies存在相同的文件夹!')
                                             ali_drive.aligo.move_file_to_trash(movie_collection_folder.file_id)
                                     else:
                                         logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
@@ -155,6 +157,15 @@ def crawl_movie(ali_drive:Alidrive):
                 if len(list(filter(lambda x: x.type=='folder',collection_file_list)))==0:
                     ali_drive.move_to_trash(movie_folder.file_id)
                 
+
+def extract_new_name(movie_json_path:str):
+    with open(f'{movie_json_path}','r+',encoding='utf-8') as movie_json_file:
+        movie_json_data = json.load(movie_json_file)
+    # 中文名 年代
+    new_name = f'{movie_json_data["title"]} ({movie_json_data["release_date"].split("-")[0]})'
+    logger.info(f'解析中文名称:{new_name}')
+    return new_name
+
 
 
 def crawl_shows(ali_drive:Alidrive):
