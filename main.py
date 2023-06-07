@@ -88,7 +88,7 @@ def crawl_movie(ali_drive:Alidrive):
             else:
                 # 电影集文件夹
                 # 获取电影集下面的电影
-                logger.success(f'开始刮削电影集{movie_folder.name}...')    
+                logger.success(f'开始刮削电影集:  {movie_folder.name}...')    
                 for movie_collection_folder in movie_folder_files:
                     # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
                     if movie_collection_folder.type == 'folder':
