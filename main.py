@@ -2,7 +2,8 @@
 # coding=utf-8
 from time import sleep
 from aligo import Aligo
-from aligo.types.Null import Null
+from aligo.types.Enum import CheckNameMode
+
 from aliyundrive.ali_drive import Alidrive
 from loguru import logger
 import base64
@@ -243,9 +244,9 @@ def crawl_shows(ali_drive:Alidrive):
         # 将fanart.jpg poster.jpg tvshow.nfo 上传到show_folder中
         sleep(3)
         try:
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/fanart.jpg',show_folder.file_id)
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/poster.jpg',show_folder.file_id)
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/tvshow.nfo',show_folder.file_id)
+            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/fanart.jpg',show_folder.file_id,check_name_mode='refuse')
+            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/poster.jpg',show_folder.file_id,check_name_mode='refuse')
+            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/tvshow.nfo',show_folder.file_id,check_name_mode='refuse')
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
@@ -261,7 +262,7 @@ def crawl_shows(ali_drive:Alidrive):
             
             # 上传季图片
             try:
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id)
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
             except:
                 continue
             episodes = ali_drive.get_file_list(season.file_id)
@@ -282,8 +283,10 @@ def crawl_shows(ali_drive:Alidrive):
                 sleep(3)
                 # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
                 try:
-                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id,name=f'{episode_video.name.rsplit(".",1)[0]}-thumb.jpg')
-                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id,name=f'{episode_video.name.rsplit(".",1)[0]}.nfo')
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id
+                                                ,name=f'{episode_video.name.rsplit(".",1)[0]}-thumb.jpg',check_name_mode='refuse')
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id
+                                                ,name=f'{episode_video.name.rsplit(".",1)[0]}.nfo',check_name_mode='refuse')
                 except:
                     continue
                 
