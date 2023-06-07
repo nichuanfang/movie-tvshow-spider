@@ -72,7 +72,7 @@ def crawl_movie(ali_drive:Alidrive):
                             for file_name in filenames:
                                 if file_name.endswith('.jpg'):
                                     logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                    ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder_file.file_id)
+                                    ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                         pass
                 else:
                     # 电影集
