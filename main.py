@@ -14,6 +14,8 @@ import subprocess
 import os
 from concurrent.futures  import Executor,ProcessPoolExecutor,Future,ThreadPoolExecutor
 
+BASE_IMAGE_URL = 'https://www.themoviedb.org/t/p/original'
+
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
     # Path.home():   /home/runner/.aligo
@@ -105,8 +107,11 @@ def download_movie_actors(movie_video:str):
         movie_json:dict = json.load(movie_json_file)
         logger.info(movie_json)
         actors:list = movie_json['credits']['cast']
+        actor_urls = []
         for actor in actors:
-            logger.info(f'获取演员:{actor["name"]} 路径为{actor["profile_path"]}')
+            actor_urls.append(f'{BASE_IMAGE_URL}{actor["profile_path"]}')
+        logger.info(f'演员url列表:{actor_urls}')
+        # 多线程下载图片并上传...
 
 if __name__=='__main__':
     try:
