@@ -17,24 +17,6 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
-
-      - name: use kodi-metadata-tmdb-cli
-        working-directory: kodi-tmdb
-        run: |
-          chmod +x kodi-tmdb-linux-amd64
-          ./kodi-tmdb-linux-amd64 &
-          echo 'kodi-tmdb is started!'
-
-      # - name: test kodi-tmdb
-      #   working-directory: kodi-tmdb
-      #   run: |
-      #     cd movies
-      #     touch '美国队长3 (2016).mkv'
-      #     sleep 3s
-      #     ls -a
-
       - name: prepare python environment(v3.11)
         uses: actions/setup-python@v4
         with:
@@ -43,6 +25,17 @@ jobs:
 
       - name: pip install
         run: pip install -r requirements.txt
+
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+
+      - name: use kodi-metadata-tmdb-cli
+        working-directory: kodi-tmdb
+        run: |
+          chmod +x kodi-tmdb-linux-amd64
+          python handle_config.py
+          ./kodi-tmdb-linux-amd64 &
+          echo 'kodi-tmdb is started!'
 
       - name: execute
         id: execute
