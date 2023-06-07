@@ -141,13 +141,16 @@ def crawl_movie(ali_drive:Alidrive):
                                                 # 根据解析的结果查找目标电影集文件夹
                                                 find_res:BaseFile = ali_drive.get_folder_by_path(f'movies/{extract_result[1]}') # type: ignore
                                                 if find_res == None:
+                                                    logger.info(f'电影集: {extract_result[1]}不存在,直接创建')
                                                     # movies下面没有这个电影集 直接创建新的影集
                                                     create_res = ali_drive.aligo.create_folder(f'{extract_result[1]}',movies.file_id)
                                                     movie_collection_id = create_res.file_id
                                                 else:
+                                                    logger.info(f'已存在电影集: {find_res.name}')
                                                     movie_collection_id = find_res.file_id
                                             else:
                                                 # 当前电影文件夹不属于任何电影集 直接移动到movies下
+                                                logger.warning(f'当前电影集文件夹不属于任何影集,已移动至movies中')
                                                 movie_collection_id = movies.file_id
                                         # 移动电影文件夹
                                         move_res = ali_drive.aligo.move_file(file_id=movie_collection_folder.file_id,to_parent_file_id=movie_collection_id,new_name=new_name)  # type: ignore
