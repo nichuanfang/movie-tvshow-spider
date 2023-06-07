@@ -7,7 +7,7 @@
     "tmdb": {
         "api_host": "https://api.themoviedb.org",
         "image_host": "https://image.tmdb.org",
-        "api_key": "a52fb1bab999ef3918b3e2864d584cb6",
+        "api_key": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMGY2OWFhYWEzYjZjYmY1N2NhNzI1MTY5Yzc3ZjIxOSIsInN1YiI6IjYzZTM0N2RiZGIxNTRmMDA4MTJlMzIzNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.2ld9fPGZvbBW4oekYQaomWpkYJDIyADkFdc-teZ-EDg",
         "language": "zh-CN",
         "proxy": "",
         "rating": "US"
