@@ -100,7 +100,7 @@ def crawl_movie(ali_drive:Alidrive):
                                 if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_collection_folder.name}/{movie_collection_file.name}/{movie_name}.nfo')):
                                     os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
                                     # 等待刮削完成
-                                    logger.info(f'开始刮削电影{movie_name}...')
+                                    logger.info(f'开始刮削电影集{movie_folder.name}电影--{movie_name}...')
                                     sleep(3)
                                     # 上传电影图片与nfo
                                     for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
@@ -111,7 +111,7 @@ def crawl_movie(ali_drive:Alidrive):
                                                 ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                     logger.success(f'电影集{movie_folder.name}电影--{movie_name}刮削成功!')
                                 pass
-                    logger.success(f'电影集{movie_folder.name}刮削成功!')    
+                logger.success(f'电影集{movie_folder.name}刮削成功!')
             
 
 
