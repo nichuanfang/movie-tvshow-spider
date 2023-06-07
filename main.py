@@ -72,7 +72,7 @@ def crawl_movie(ali_drive:Alidrive):
                                 os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
                                 # 等待刮削完成
                                 logger.info(f'开始刮削电影{movie_name}...')
-                                sleep(3)
+                                sleep(5)
                                 # 上传电影图片与nfo
                                 for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
                                     # 上传图片
@@ -101,7 +101,7 @@ def crawl_movie(ali_drive:Alidrive):
                                     os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
                                     # 等待刮削完成
                                     logger.info(f'开始刮削电影集{movie_folder.name}电影--{movie_name}...')
-                                    sleep(3)
+                                    sleep(5)
                                     # 上传电影图片与nfo
                                     for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
                                         # 上传图片
