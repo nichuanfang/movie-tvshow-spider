@@ -89,8 +89,6 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.success(f'tmm电影文件夹: {movie_folder.name}已成功移动至movies')
                                 else:
                                     logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
-
-                                
                                 
                                 
             else:
