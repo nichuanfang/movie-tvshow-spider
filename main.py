@@ -17,7 +17,7 @@ import re
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
 
-# 季度
+# 季
 SEASON_DICT = {
     '一': '01',
     '二': '02',
@@ -242,8 +242,6 @@ def crawl_shows(ali_drive:Alidrive):
         os.system(f'mkdir -p ./kodi-tmdb/shows/"{show_folder.name}"')
         # 将fanart.jpg poster.jpg tvshow.nfo 上传到show_folder中
         sleep(3)
-        logger.info('查看剧集文件日志')
-        os.system(f'ls ./kodi-tmdb/shows/"{show_folder.name}"')
         try:
             ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/fanart.jpg',show_folder.file_id)
             ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/poster.jpg',show_folder.file_id)
@@ -280,7 +278,12 @@ def crawl_shows(ali_drive:Alidrive):
                 os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
                 # 休眠3s等待kodi-tmdb进程刮削完成
                 sleep(3)
-                # 将生成的图片和nfo文件上传到剧集文件夹
+                # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
+                try:
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id,name=f'{episode_video.name.rsplit(".",1)[0]}-thumb.jpg')
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id,name=f'{episode_video.name.rsplit(".",1)[0]}.nfo')
+                except:
+                    continue
                 
     
 def extract_season(season_name:str):
