@@ -245,9 +245,9 @@ def crawl_shows(ali_drive:Alidrive):
         logger.info('查看剧集文件日志')
         os.system(f'ls ./kodi-tmdb/shows/"{show_folder.name}"')
         try:
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/"{show_folder.name}"/fanart.jpg',show_folder.file_id)
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/"{show_folder.name}"/poster.jpg',show_folder.file_id)
-            ali_drive.aligo.upload_file(f'kodi-tmdb/shows/"{show_folder.name}"/tvshow.nfo',show_folder.file_id)
+            ali_drive.aligo.upload_file(f"kodi-tmdb/shows/'{show_folder.name}'/fanart.jpg",show_folder.file_id)
+            ali_drive.aligo.upload_file(f"kodi-tmdb/shows/'{show_folder.name}'/poster.jpg",show_folder.file_id)
+            ali_drive.aligo.upload_file(f"kodi-tmdb/shows/'{show_folder.name}'/tvshow.nfo",show_folder.file_id)
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
