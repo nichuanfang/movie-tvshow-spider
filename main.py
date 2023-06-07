@@ -106,6 +106,11 @@ def crawl_movie(ali_drive:Alidrive):
                     # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
                     if movie_collection_folder.type == 'folder':
                         movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
+                        # 获取阿里云盘该电影集的其中某部电影的文件id
+                        movie_collection_id = ali_drive.get_folder_by_path(f'movies/{movie_folder.name}')
+                        if movie_collection_id == None:
+                            create_collcetion_res = ali_drive.aligo.create_folder(f'{movie_folder.name}',movies.file_id)
+                            movie_collection_id = create_collcetion_res.file_id
                         for movie_collection_file in movie_collection_files:
                             if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
                                 # 电影mkv等视频文件名
@@ -126,8 +131,23 @@ def crawl_movie(ali_drive:Alidrive):
                                             if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
                                                 logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                                 ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_collection_folder.file_id)
-                                    logger.success(f'电影集电影:  {movie_folder.name}--{movie_name}刮削成功!')
-                                pass
+                                                
+                                    # 查看nfo文件是否存在
+                                    if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_collection_folder.name}/{movie_name}.nfo')):
+                                        logger.success(f'电影集电影:  {movie_folder.name}--{movie_name}刮削成功!')
+                                        # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
+                                        logger.info(f'开始移动tmm电影集文件夹: {movie_folder.name}/{movie_collection_folder.name}至movies')
+                                        
+                                        move_res = ali_drive.aligo.move_file(file_id=movie_collection_folder.file_id,to_parent_file_id=movie_collection_id) # type: ignore
+                                        try:
+                                            file_id = move_res.file_id
+                                            logger.success(f'tmm电影集文件夹: {movie_collection_folder.name}-{file_id}已成功移动至movies')
+                                        except:
+                                            logger.warning(f'tmm电影集文件夹: {movie_collection_folder.name}移动至movies失败,movies存在相同的文件夹!')
+                                            ali_drive.aligo.move_file_to_trash(movie_collection_folder.file_id)
+                                    else:
+                                        logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
+                                    
                 logger.success(f'电影集:  {movie_folder.name}刮削成功!')
 
 
