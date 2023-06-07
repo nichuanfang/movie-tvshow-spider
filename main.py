@@ -12,9 +12,6 @@ import json
 import sys
 import subprocess
 import os
-from concurrent.futures  import Executor,ProcessPoolExecutor,Future,ThreadPoolExecutor
-
-BASE_IMAGE_URL = 'https://www.themoviedb.org/t/p/original'
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
@@ -54,7 +51,6 @@ def crawl_movie(ali_drive:Alidrive):
       # 根据tmdb文件夹的 文件名.movie.json 读取演员图片链接  下载演员图片 上传至当前电影文件夹下的.actors文件夹下
       # 刮削电影文件的中文字幕 上传到同文件夹下
     tmm_movies = ali_drive.get_folder_by_path('tmm/tmm-movies')
-    movie_names = []
     if type(tmm_movies) == BaseFile:
         
         movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
@@ -70,7 +66,6 @@ def crawl_movie(ali_drive:Alidrive):
                             movie_video = movie_folder_file.name
                             # 电影名(不带扩展名)
                             movie_name = movie_video.rsplit('.',1)[0]
-                            movie_names.append(movie_name)
                             
                             # 判断该电影文件夹是否存在nfo文件
                             if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
@@ -84,13 +79,39 @@ def crawl_movie(ali_drive:Alidrive):
                                     for file_name in filenames:
                                         if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
                                             logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                            ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)    
+                                            ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 logger.success(f'电影{movie_name}刮削成功!')
             else:
                 # 电影集文件夹
                 # 获取电影集下面的电影
-                # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
-                pass
+                logger.success(f'开始刮削电影集{movie_folder.name}...')    
+                for movie_collection_folder in movie_folder_files:
+                    # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
+                    if movie_collection_folder.type == 'folder':
+                        movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
+                        for movie_collection_file in movie_collection_files:
+                            if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                                # 电影mkv等视频文件名
+                                movie_video = movie_collection_file.name
+                                # 电影名(不带扩展名)
+                                movie_name = movie_video.rsplit('.',1)[0]
+                                
+                                # 判断该电影文件夹是否存在nfo文件
+                                if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_collection_folder.name}/{movie_collection_file.name}/{movie_name}.nfo')):
+                                    os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
+                                    # 等待刮削完成
+                                    logger.info(f'开始刮削电影{movie_name}...')
+                                    sleep(3)
+                                    # 上传电影图片与nfo
+                                    for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
+                                        # 上传图片
+                                        for file_name in filenames:
+                                            if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
+                                                logger.info(f'开始上传{dirpath}/{file_name}图片...')
+                                                ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
+                                    logger.success(f'电影集{movie_folder.name}电影--{movie_name}刮削成功!')
+                                pass
+                    logger.success(f'电影集{movie_folder.name}刮削成功!')    
             
 
 
