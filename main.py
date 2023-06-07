@@ -247,6 +247,7 @@ def crawl_shows(ali_drive:Alidrive):
             ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/fanart.jpg',show_folder.file_id)
             ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/poster.jpg',show_folder.file_id)
             ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/tvshow.nfo',show_folder.file_id)
+            logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
         except:
             logger.error(f'剧集信息刮削失败,请检查剧集名称!')
             continue
