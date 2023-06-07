@@ -170,3 +170,4 @@ kodi-tmdb/music-videos/*
 !kodi-tmdb/music-videos/__init__.py
 kodi-tmdb/kodi_tmdb_config
 kodi-tmdb/config.json
+kodi-tmdb/movies/tmdb

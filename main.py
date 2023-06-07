@@ -83,8 +83,8 @@ def crawl_movie(ali_drive:Alidrive):
                                 
                                 # 创建.actors文件夹
                                 ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
-                                # 获取演员图片链接
-                                movie_actors(movie_video)
+                                # 下载演员图片
+                                download_movie_actors(movie_video)
                 else:
                     # 电影集
                     pass
@@ -95,9 +95,11 @@ def crawl_shows(ali_drive:Alidrive):
     pass 
     
 
-def movie_actors(movie_video:str):
+# 多线程下载演员图片
+def download_movie_actors(movie_video:str):
     with open(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json','r+',encoding='utf-8') as movie_json_file:
-        logger.info(movie_json_file.read())
+        movie_json = json.load(movie_json_file)
+        logger.info(movie_json)
 
 
 if __name__=='__main__':
