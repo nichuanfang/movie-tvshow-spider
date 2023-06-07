@@ -13,6 +13,9 @@ import json
 import sys
 import subprocess
 import os
+import re
+
+SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
@@ -33,13 +36,11 @@ def prepare_for_aligo(base64_userdata:str):
 def crawling():
     ali_drive = Alidrive(Aligo())
     
-    crawl_movie(ali_drive)
+    # crawl_movie(ali_drive)
     
     crawl_shows(ali_drive)
     
     # 2. 获取剧集文件夹 TODO
-    
-    pass
 
 
  
@@ -180,7 +181,7 @@ def crawl_movie(ali_drive:Alidrive):
                 if len(list(filter(lambda x: x.type=='folder',collection_file_list)))==0:
                     ali_drive.move_to_trash(movie_folder.file_id)
                 
-
+# 解析电影和电影集名字
 def extract_movie_new_name(movie_json_path:str):
     with open(f'{movie_json_path}','r+',encoding='utf-8') as movie_json_file:
         movie_json_data = json.load(movie_json_file)
@@ -195,9 +196,71 @@ def extract_movie_new_name(movie_json_path:str):
     return (movie_new_name,movie_collection_new_name)
 
 
-
+# 刮削剧集
 def crawl_shows(ali_drive:Alidrive):
-    pass 
+    # !强制的规范元数据结构
+    
+    # 剧季文件夹：Season1 / Season 1 / s1 / S1 / S01 /s01
+    # 媒体源文件：SxxExx (.mkv / .mp4 等常见视频格式)
+    # 剧集元数据：SxxExx.nfo / SxxEPxx.nfo
+    # 外置字幕源：SxxExx.zh (.ass / .ssa / .srt)
+    # 剧集缩略图：SxxExx-thumb (.jpg / .png)
+    # 剧季元数据：season.nfo
+    
+    # 要刮削的根文件夹
+    tmm_tvshows:BaseFile = ali_drive.get_folder_by_path('tmm/tmm-tvshows')  # type: ignore
+    # 刮削好的文件夹
+    tvshows:BaseFile = ali_drive.get_folder_by_path('TvShows') # type: ignore
+    
+    show_folders = ali_drive.get_file_list(tmm_tvshows.file_id)
+    
+    # 遍历剧集文件夹
+    for show_folder in show_folders:
+        seasons = ali_drive.get_file_list(show_folder.file_id)
+        for season in seasons:
+            # 提取第几季度
+            which_season = extract_season(season.name)
+            
+            episodes = ali_drive.get_file_list(season.file_id)
+            
+            for episode in episodes: 
+                
+                which_episode = extract_episode(which_season,episode.name)
+                
+                # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
+                
+                pass
+    
+def extract_season(season_name:str):
+    """提取季信息
+
+    Args:
+        season_name (str): 季名
+
+    Returns:
+        _type_: _description_
+    """    
+    # 获取季
+    re_result = re.search(SEASON_PATTERN,season_name)
+    if re_result:
+        season_info = re_result.group()
+        
+        pass
+    return 1
+
+def extract_episode(which_season:int,episode_name:str):
+    """提取集信息
+        
+    Args:
+        which_season (str): 第几季
+        episode_name (str): 集名称
+
+    Returns:
+        _type_: 季度集的复合文件名
+    """    
+    return 'S01E01.mkv'
+
+ 
     
 if __name__=='__main__':
     try:
