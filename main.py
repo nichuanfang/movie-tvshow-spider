@@ -86,7 +86,7 @@ def crawl_movie(ali_drive:Alidrive):
                                     # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                     logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
                                     move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id)
-                                    if move_res.file_id == None or move_res.file_id != movie_folder.file_id:
+                                    if move_res == None:
                                         logger.warning(f'tmm电影文件夹: {movie_folder.name}移动失败')    
                                         ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
                                     logger.success(f'tmm电影文件夹: {movie_folder.name}已成功移动至movies')
