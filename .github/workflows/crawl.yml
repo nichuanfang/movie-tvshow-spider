@@ -45,7 +45,6 @@ jobs:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
         run: |
           python main.py $ALIGO_TOKEN
-          ls kodi-tmdb/movies
 
       - name: pull
         run: |

@@ -98,7 +98,7 @@ def crawl_shows(ali_drive:Alidrive):
 
 def movie_actors(movie_video:str):
     with open(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json','r+',encoding='utf-8') as movie_json_file:
-        pass
+        logger.info(movie_json_file.read())
 
 
 if __name__=='__main__':
