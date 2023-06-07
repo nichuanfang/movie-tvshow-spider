@@ -86,8 +86,19 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
                                     # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                     logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
-                                    new_name = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')[0]
-                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id,new_name=new_name)
+                                    extract_res = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                    new_name = extract_res[0]
+                                    dest_id = movies.file_id
+                                    # 如果电影集文件夹存在 则新增至电影集
+                                    if extract_res[1] != None:
+                                        collection_res:BaseFile = ali_drive.get_folder_by_path(f'movies/{extract_res[1]}') # type: ignore
+                                        if collection_res != None:
+                                            dest_id = collection_res.file_id
+                                        else:
+                                            # 创建电影集
+                                            create_res = ali_drive.aligo.create_folder(f'movies/{extract_res[1]}',movies.file_id)
+                                            dest_id = create_res.file_id
+                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=dest_id,new_name=new_name)
                                     try:
                                         file_id = move_res.file_id
                                         logger.success(f'tmm电影文件夹: {new_name}-{file_id}已成功移动至movies')
