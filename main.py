@@ -83,14 +83,7 @@ def crawl_movie(ali_drive:Alidrive):
                                     if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
                                         logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                         ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                                # 上传演员图片
                                 
-                                if not actors_folder_exists:
-                                    # 创建.actors文件夹
-                                    createFileResponse = ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
-                                    actors_folder_exists = True
-                                    # 下载演员图片
-                                    download_movie_actors(movie_video)
                 else:
                     # 电影集
                     pass
@@ -100,19 +93,6 @@ def crawl_movie(ali_drive:Alidrive):
 def crawl_shows(ali_drive:Alidrive):
     pass 
     
-
-# 多线程下载演员图片
-def download_movie_actors(movie_video:str):
-    with open(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json','r+',encoding='utf-8') as movie_json_file:
-        movie_json:dict = json.load(movie_json_file)
-        logger.info(movie_json)
-        actors:list = movie_json['credits']['cast']
-        actor_urls = []
-        for actor in actors:
-            actor_urls.append(f'{BASE_IMAGE_URL}{actor["profile_path"]}')
-        logger.info(f'演员url列表:{actor_urls}')
-        # 多线程下载图片并上传...
-
 if __name__=='__main__':
     try:
         base64_userdata = sys.argv[1]
