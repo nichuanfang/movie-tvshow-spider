@@ -252,53 +252,57 @@ def crawl_shows(ali_drive:Alidrive):
             # 修改剧集文件夹名 
             with open(f'kodi-tmdb/shows/{show_folder.name}/tmdb/tv.json') as shows_f:
                 shows_data = json.load(shows_f)
-                rename_file = ali_drive.aligo.rename_file(show_folder.file_id,f'{shows_data["name"]} ({shows_data["first_air_date"].split("-")[0]})',check_name_mode='refuse')
-                if rename_file.file_id == show_folder.file_id:
-                    logger.info(f'重命名后文件id不变')
-                else:
-                    logger.info(f'重命名后文件夹id发生变化')
+                ali_drive.aligo.rename_file(show_folder.file_id,f'{shows_data["name"]} ({shows_data["first_air_date"].split("-")[0]})',check_name_mode='refuse')
             
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
             continue
         
-        # for season in seasons:
-        #     if not season.type == 'folder':
-        #         continue
-        #     # 提取第几季
-        #     which_season = extract_season(season.name)
-        #     if which_season == -1:
-        #         continue
+        for season in seasons:
+            if not season.type == 'folder':
+                continue
+            # 提取第几季
+            which_season = extract_season(season.name)
+            if which_season == -1:
+                continue
             
-        #     # 上传季图片
-        #     try:
-        #         ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
-        #     except:
-        #         continue
-        #     episodes = ali_drive.get_file_list(season.file_id)
+            # 上传季图片
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
+            except:
+                continue
+            episodes = ali_drive.get_file_list(season.file_id)
             
-        #     # 保证剧集是能排序的 不用重命名
-        #     episode_videos = []
-        #     for episode in episodes: 
-        #         if episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg']:
-        #             episode_videos.append(episode)
-        #         pass
-        #     # 对视频文件排序
-        #     episode_videos.sort(key=lambda x: x.name,reverse=False)
+            # 保证剧集是能排序的 不用重命名
+            episode_videos = []
+            for episode in episodes: 
+                if episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg']:
+                    episode_videos.append(episode)
+                pass
+            # 对视频文件排序
+            episode_videos.sort(key=lambda x: x.name,reverse=False)
             
-        #     # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
-        #     for index,episode_video in enumerate(episode_videos):
-        #         os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
-        #         # 休眠3s等待kodi-tmdb进程刮削完成
-        #         sleep(3)
-        #         # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
-        #         try:
-        #             ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id
-        #                                         ,name=f'{episode_video.name.rsplit(".",1)[0]}-thumb.jpg',check_name_mode='refuse')
-        #             ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id
-        #                                         ,name=f'{episode_video.name.rsplit(".",1)[0]}.nfo',check_name_mode='refuse')
-        #         except:
-        #             continue
+            # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
+            for index,episode_video in enumerate(episode_videos):
+                os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
+                # 休眠3s等待kodi-tmdb进程刮削完成
+                sleep(3)
+                # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
+                try:
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id
+                                                ,name=f'{episode_video.name.rsplit(".",1)[0]}-thumb.jpg',check_name_mode='refuse')
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id
+                                                ,name=f'{episode_video.name.rsplit(".",1)[0]}.nfo',check_name_mode='refuse')
+                except:
+                    continue
+        
+        # 移动整个剧集文件夹
+        try:
+            res = ali_drive.aligo.move_file(show_folder.file_id,tvshows.file_id)
+            shows_id = res.file_id
+        except:
+            logger.info(f'剧集:  {show_folder.name}已存在,无需新增')
+            continue
                 
     
 def extract_season(season_name:str):
