@@ -51,7 +51,7 @@ def prepare_for_aligo(base64_userdata:str):
 def crawling():
     ali_drive = Alidrive(Aligo())
     
-    # crawl_movie(ali_drive)
+    crawl_movie(ali_drive)
     
     crawl_shows(ali_drive)
     
