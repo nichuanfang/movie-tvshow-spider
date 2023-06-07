@@ -231,12 +231,26 @@ def crawl_shows(ali_drive:Alidrive):
     
     # 遍历剧集文件夹
     for show_folder in show_folders:
+        seasons = ali_drive.get_file_list(show_folder.file_id)
+        # 判断是否需要刮削 有nfo文件的不需要
+        if len(list(filter(lambda x:x.name=='tvshow.nfo',seasons))) != 0:
+            logger.info(f'剧集: {show_folder.name}无需刮削,跳过')
+            continue
+        
         # show_folder.name非常重要! 刮削剧集主海报图片和横幅主要靠这个剧集根文件夹 标准格式(TMDB): 剧集名称 (年份)   如 雷神3：诸神黄昏 (2017) , 教父 (1972) 
         
         # 在./kodi-tmdb/shows创建剧集目录  让守护进程kodi-tmdb刮削
         os.system(f'mkdir -p ./kodi-tmdb/shows/"{show_folder.name}"')
+        # 将fanart.jpg poster.jpg tvshow.nfo 上传到show_folder中
+        sleep(3)
+        try:
+            ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/fanart.jpg',show_folder.file_id)
+            ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/poster.jpg',show_folder.file_id)
+            ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/tvshow.nfo',show_folder.file_id)
+        except:
+            logger.error(f'剧集信息刮削失败,请检查剧集名称!')
+            continue
         
-        seasons = ali_drive.get_file_list(show_folder.file_id)
         for season in seasons:
             # 提取第几季
             which_season = extract_season(season.name)
@@ -259,8 +273,7 @@ def crawl_shows(ali_drive:Alidrive):
                 # 休眠3s等待kodi-tmdb进程刮削完成
                 sleep(3)
                 # 将生成的图片和nfo文件上传到剧集文件夹
-                logger.info(f'nfo和图片已生成, 查看目录:')
-                os.system(f'ls ./kodi-tmdb/shows/"{show_folder.name}"')
+                
     
 def extract_season(season_name:str):
     """提取季信息
