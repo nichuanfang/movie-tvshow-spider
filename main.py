@@ -15,7 +15,22 @@ import subprocess
 import os
 import re
 
-SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
+# 剧集正则
+SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
+
+# 季度
+SEASON_DICT = {
+    '一': '01',
+    '二': '02',
+    '三': '03',
+    '四': '04',
+    '五': '05',
+    '六': '06',
+    '七': '07',
+    '八': '08',
+    '九': '09',
+    '十': '10'
+}
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
@@ -216,20 +231,36 @@ def crawl_shows(ali_drive:Alidrive):
     
     # 遍历剧集文件夹
     for show_folder in show_folders:
+        # show_folder.name非常重要! 刮削剧集主海报图片和横幅主要靠这个剧集根文件夹 标准格式(TMDB): 剧集名称 (年份)   如 雷神3：诸神黄昏 (2017) , 教父 (1972) 
+        
+        # 在./kodi-tmdb/shows创建剧集目录  让守护进程kodi-tmdb刮削
+        os.system(f'mkdir -p ./kodi-tmdb/shows/"{show_folder.name}"')
+        
         seasons = ali_drive.get_file_list(show_folder.file_id)
         for season in seasons:
-            # 提取第几季度
+            # 提取第几季
             which_season = extract_season(season.name)
-            
+            if which_season == -1:
+                continue
             episodes = ali_drive.get_file_list(season.file_id)
             
+            # 保证剧集是能排序的 不用重命名
+            episode_videos = []
             for episode in episodes: 
-                
-                which_episode = extract_episode(which_season,episode.name)
-                
-                # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
-                
+                if episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg']:
+                    episode_videos.append(episode)
                 pass
+            # 对视频文件排序
+            episode_videos.sort(key=lambda x: x.name,reverse=False)
+            
+            # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
+            for index,episode_video in enumerate(episode_videos):
+                os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
+                # 休眠3s等待kodi-tmdb进程刮削完成
+                sleep(3)
+                # 将生成的图片和nfo文件上传到剧集文件夹
+                logger.info(f'nfo和图片已生成, 查看目录:')
+                os.system(f'ls ./kodi-tmdb/shows/"{show_folder.name}"')
     
 def extract_season(season_name:str):
     """提取季信息
@@ -244,24 +275,17 @@ def extract_season(season_name:str):
     re_result = re.search(SEASON_PATTERN,season_name)
     if re_result:
         season_info = re_result.group()
-        
-        pass
-    return 1
+        # 提取数字
+        search = re.search(r'(\d+)|(一|二|三|四|五|六|七|八|九|十)',season_info)
+        if search:
+            season_tag = search.group()
+            if season_tag in ('一','二','三','四','五','六','七','八','九','十'):
+                return int(SEASON_DICT[season_tag])
+            else:
+                return int(season_tag)    
+            
+    return -1
 
-def extract_episode(which_season:int,episode_name:str):
-    """提取集信息
-        
-    Args:
-        which_season (str): 第几季
-        episode_name (str): 集名称
-
-    Returns:
-        _type_: 季度集的复合文件名
-    """    
-    return 'S01E01.mkv'
-
- 
-    
 if __name__=='__main__':
     try:
         # Aligo的配置文件aligo.json的base64字符串
