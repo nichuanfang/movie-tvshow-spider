@@ -243,6 +243,8 @@ def crawl_shows(ali_drive:Alidrive):
         os.system(f'mkdir -p ./kodi-tmdb/shows/"{show_folder.name}"')
         # 将fanart.jpg poster.jpg tvshow.nfo 上传到show_folder中
         sleep(3)
+        logger.info('查看剧集文件日志')
+        os.system(f'ls ./kodi-tmdb/shows/"{show_folder.name}"')
         try:
             ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/fanart.jpg',show_folder.file_id)
             ali_drive.aligo.upload_file(f'./kodi-tmdb/shows/"{show_folder.name}"/poster.jpg',show_folder.file_id)
