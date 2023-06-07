@@ -86,9 +86,14 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
                                     # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                     logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
-                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id,overwrite=True)
-                                    ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
-                                    logger.success(f'tmm电影文件夹: {movie_folder.name}已成功移动至movies')
+                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id)
+                                    try:
+                                        file_id = move_res.file_id
+                                        logger.success(f'tmm电影文件夹: {movie_folder.name}-{file_id}已成功移动至movies')
+                                    except:
+                                        logger.warning(f'tmm电影文件夹: {movie_folder.name}移动至movies失败,movies存在相同的文件夹!')
+                                        ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
+                                    
                                 else:
                                     logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
                                 
