@@ -150,6 +150,11 @@ def crawl_movie(ali_drive:Alidrive):
                                         logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
                                     
                 logger.success(f'电影集:  {movie_folder.name}刮削成功!')
+                # 检查电影集文件夹数量 如果为0 删除该文件夹
+                collection_file_list = ali_drive.get_file_list(parent_file_id=movie_folder.file_id)
+                if len(list(filter(lambda x: x.type=='folder',collection_file_list)))==0:
+                    ali_drive.move_to_trash(movie_folder.file_id)
+                
 
 
 def crawl_shows(ali_drive:Alidrive):
