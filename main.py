@@ -67,6 +67,7 @@ def crawl_movie(ali_drive:Alidrive):
                         movie_name = movie_video.rsplit('.',1)[0]
                         movie_names.append(movie_name)
                         
+                        actors_folder_exists = False
                         # 判断该电影文件夹是否存在nfo文件
                         if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                             os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
@@ -81,10 +82,12 @@ def crawl_movie(ali_drive:Alidrive):
                                         ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 # 上传演员图片
                                 
-                                # 创建.actors文件夹
-                                ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
-                                # 下载演员图片
-                                download_movie_actors(movie_video)
+                                if not actors_folder_exists:
+                                    # 创建.actors文件夹
+                                    createFileResponse = ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
+                                    actors_folder_exists = createFileResponse.exist
+                                    # 下载演员图片
+                                    download_movie_actors(movie_video)
                 else:
                     # 电影集
                     pass
