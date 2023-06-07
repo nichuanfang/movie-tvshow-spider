@@ -13,9 +13,6 @@ import sys
 import subprocess
 import os
 
-from subtitle import mod_shooter
-# from subtitle import getsubs
-
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
     # Path.home():   /home/runner/.aligo
