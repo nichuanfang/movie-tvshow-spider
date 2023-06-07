@@ -108,7 +108,7 @@ def crawl_movie(ali_drive:Alidrive):
                                         for file_name in filenames:
                                             if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
                                                 logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                                ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
+                                                ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_collection_folder.file_id)
                                     logger.success(f'电影集{movie_folder.name}电影--{movie_name}刮削成功!')
                                 pass
                 logger.success(f'电影集{movie_folder.name}刮削成功!')
