@@ -80,7 +80,11 @@ def crawl_movie(ali_drive:Alidrive):
                                         if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
                                             logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                             ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                                logger.success(f'电影:  {movie_name}刮削成功!')
+                                if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
+                                    logger.success(f'电影:  {movie_name}刮削成功!')
+                                # 上传成功就将该文件夹移动到movies文件夹中
+                                # 如果movies有同名文件夹 直接覆盖
+                                
                                 logger.success(f' ')
                                 logger.success(f' ')
                                 logger.success(f' ')
@@ -88,7 +92,7 @@ def crawl_movie(ali_drive:Alidrive):
             else:
                 # 电影集文件夹
                 # 获取电影集下面的电影
-                logger.success(f'开始刮削电影集:  {movie_folder.name}...')    
+                logger.info(f'开始刮削电影集:  {movie_folder.name}...')    
                 for movie_collection_folder in movie_folder_files:
                     # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
                     if movie_collection_folder.type == 'folder':
