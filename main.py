@@ -102,9 +102,11 @@ def crawl_shows(ali_drive:Alidrive):
 # 多线程下载演员图片
 def download_movie_actors(movie_video:str):
     with open(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json','r+',encoding='utf-8') as movie_json_file:
-        movie_json = json.load(movie_json_file)
+        movie_json:dict = json.load(movie_json_file)
         logger.info(movie_json)
-
+        actors:list = movie_json['credits']['cast']
+        for actor in actors:
+            logger.info(f'获取演员:{actor["name"]} 路径为{actor["profile_path"]}')
 
 if __name__=='__main__':
     try:
