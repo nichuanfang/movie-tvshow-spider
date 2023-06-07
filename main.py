@@ -142,7 +142,8 @@ def crawl_movie(ali_drive:Alidrive):
                                                 find_res:BaseFile = ali_drive.get_folder_by_path(f'movies/{extract_result[1]}') # type: ignore
                                                 if find_res == None:
                                                     # movies下面没有这个电影集 直接创建新的影集
-                                                    ali_drive.aligo.create_folder(f'{extract_result[1]}',movies.file_id)
+                                                    create_res = ali_drive.aligo.create_folder(f'{extract_result[1]}',movies.file_id)
+                                                    movie_collection_id = create_res.file_id
                                                 else:
                                                     movie_collection_id = find_res.file_id
                                             else:
@@ -174,7 +175,7 @@ def extract_movie_new_name(movie_json_path:str):
     logger.info(f'解析电影中文名称:{movie_new_name}')
     try:
         movie_collection_new_name = movie_json_data['belongs_to_collection']['name']
-        logger.info(f'解析电影集中文名称:{movie_new_name}')
+        logger.info(f'解析电影集中文名称:{movie_collection_new_name}')
     except:
         movie_collection_new_name = None
     return (movie_new_name,movie_collection_new_name)
