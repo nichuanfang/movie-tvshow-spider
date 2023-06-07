@@ -82,10 +82,9 @@ def crawl_movie(ali_drive:Alidrive):
                                 # 上传演员图片
                                 
                                 # 创建.actors文件夹
-                                ali_drive.aligo.create_folder('.actors',movie_folder.file_id)
+                                ali_drive.aligo.create_folder(name='.actors',parent_file_id=movie_folder.file_id,check_name_mode='refuse')
                                 # 获取演员图片链接
                                 movie_actors(movie_video)
-                                pass
                 else:
                     # 电影集
                     pass
