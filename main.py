@@ -252,6 +252,8 @@ def crawl_shows(ali_drive:Alidrive):
             continue
         
         for season in seasons:
+            if not season.type == 'folder':
+                continue
             # 提取第几季
             which_season = extract_season(season.name)
             if which_season == -1:
