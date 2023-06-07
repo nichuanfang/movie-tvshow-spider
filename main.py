@@ -86,7 +86,7 @@ def crawl_movie(ali_drive:Alidrive):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
                                     # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                     logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
-                                    new_name = extract_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                    new_name = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')[0]
                                     move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=movies.file_id,new_name=new_name)
                                     try:
                                         file_id = move_res.file_id
@@ -104,7 +104,7 @@ def crawl_movie(ali_drive:Alidrive):
                 # 获取电影集下面的电影
                 logger.info(f'开始刮削电影集:  {movie_folder.name}...')    
                 for movie_collection_folder in movie_folder_files:
-                    # collection_movie_files = ali_drive.get_file_list(movie_folder_file.file_id)
+                    movie_collection_rename_flag = False
                     if movie_collection_folder.type == 'folder':
                         movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
                         # 获取阿里云盘该电影集的其中某部电影的文件id
@@ -139,8 +139,14 @@ def crawl_movie(ali_drive:Alidrive):
                                         logger.success(f'电影集电影:  {movie_folder.name}--{movie_name}刮削成功!')
                                         # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
                                         logger.info(f'开始移动tmm电影集文件夹: {movie_folder.name}/{movie_collection_folder.name}至movies')
-                                        
-                                        new_name = extract_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                        extract_result = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                        # 重命名电影文件夹以及电影集文件夹
+                                        new_name = extract_result[0]
+                                        if not movie_collection_rename_flag and not extract_result[1]==None and not extract_result[1] == '':
+                                            # 未更新
+                                            ali_drive.aligo.rename_file(movie_folder.file_id,extract_result[1])
+                                            movie_collection_rename_flag = True
+                                            logger.info(f'电影集{movie_folder.name}重命名为{extract_result[1]}')
                                         move_res = ali_drive.aligo.move_file(file_id=movie_collection_folder.file_id,to_parent_file_id=movie_collection_id,new_name=new_name) # type: ignore
                                         try:
                                             file_id = move_res.file_id
@@ -158,13 +164,17 @@ def crawl_movie(ali_drive:Alidrive):
                     ali_drive.move_to_trash(movie_folder.file_id)
                 
 
-def extract_new_name(movie_json_path:str):
+def extract_movie_new_name(movie_json_path:str):
     with open(f'{movie_json_path}','r+',encoding='utf-8') as movie_json_file:
         movie_json_data = json.load(movie_json_file)
     # 中文名 年代
-    new_name = f'{movie_json_data["title"]} ({movie_json_data["release_date"].split("-")[0]})'
-    logger.info(f'解析中文名称:{new_name}')
-    return new_name
+    movie_new_name = f'{movie_json_data["title"]} ({movie_json_data["release_date"].split("-")[0]})'
+    logger.info(f'解析电影中文名称:{movie_new_name}')
+    try:
+        movie_collection_new_name = movie_json_data['belongs_to_collection']['name']
+    except:
+        movie_collection_new_name = None
+    return (movie_new_name,movie_collection_new_name)
 
 
 
