@@ -13,6 +13,9 @@ import sys
 import subprocess
 import os
 
+from subtitle import mod_shooter
+# from subtitle import getsubs
+
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
     # Path.home():   /home/runner/.aligo
@@ -70,6 +73,9 @@ def crawl_movie(ali_drive:Alidrive):
                             # 判断该电影文件夹是否存在nfo文件
                             if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                                 os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
+                                # 创建电影文件夹
+                                os.system(f'mkdir -p ./kodi-tmdb/movies/"{movie_folder.name}"')
+                                os.system(f'touch ./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"')
                                 # 等待刮削完成
                                 logger.info(f'开始刮削电影:  {movie_name}...')
                                 sleep(5)
@@ -82,16 +88,27 @@ def crawl_movie(ali_drive:Alidrive):
                                             ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
                                 else:
                                     logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
-                                    logger.warning('')
-                                    logger.warning('')
-                                    logger.warning('')
-                                    logger.warning('')
+                                # 刮削电影字幕
+                                logger.info(f'开始刮削电影:  {movie_name}字幕...')
+                                target:str = mod_shooter.seekTarget(f'./kodi-tmdb/movies/"{movie_folder.name}"/"{movie_video}"') # type: ignore
+                                #print(target)
+                                if target is None:
+                                    # mod_shooter.setMark(targetPath, markFile)
+                                    sys.exit("没有需要处理的目标")
+
+                                #3. 获取目标文件的特征数据
+                                sHash = mod_shooter.shooterHash(target)
+
+                                #4. 调用api 获得字幕文件清单
+                                data_json = mod_shooter.getSubsJSON(target, sHash)
+                                # 备注：我认为有必要保存这个接口返回的列表数据，因为包含delay值，至少在字幕出现位移解决前应该保留
+                                #print(data_json)
+                                links = mod_shooter.parseFromResult(data_json.decode()) #bytes to string
+                                
+                                logger.info(f'刮削的字幕清单与json: {data_json}  {links}')
+                                logger.success(f'电影:  {movie_name}字幕刮削成功!')
                                 # 上传成功就将该文件夹移动到movies文件夹中
                                 # 如果movies有同名文件夹 直接覆盖
                                 
@@ -124,17 +141,8 @@ def crawl_movie(ali_drive:Alidrive):
                                                 logger.info(f'开始上传{dirpath}/{file_name}图片...')
                                                 ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_collection_folder.file_id)
                                     logger.success(f'电影集电影:  {movie_folder.name}--{movie_name}刮削成功!')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
-                                    logger.success(f' ')
                                 pass
                 logger.success(f'电影集:  {movie_folder.name}刮削成功!')
-                logger.success(f' ')
-                logger.success(f' ')
-                logger.success(f' ')
-                logger.success(f' ')
-            
 
 
 def crawl_shows(ali_drive:Alidrive):
@@ -145,6 +153,8 @@ if __name__=='__main__':
         base64_userdata = sys.argv[1]
     except:
         base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
+        
+        
     prepare_for_aligo(base64_userdata) # type: ignore
     
     crawling()
