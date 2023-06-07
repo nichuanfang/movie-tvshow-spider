@@ -47,9 +47,9 @@ jobs:
       - name: execute
         id: execute
         env:
-          ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_LOGIN_DATA }}
+          ALIGO_LOGIN_DATA: ${{ secrets.ALIGO_TOKEN }}
         run: |
-          python main.py $ALIGO_LOGIN_DATA
+          python main.py $ALIGO_TOKEN
           ls kodi-tmdb/movies
 
       - name: pull

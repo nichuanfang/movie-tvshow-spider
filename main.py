@@ -62,13 +62,14 @@ def crawl_movie(ali_drive:Alidrive):
                 if movie_folder_file.type == 'file':
                     if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
                         # 电影
-                        movie_name = movie_folder_file.name
+                        movie_video = movie_folder_file.name
+                        movie_name = movie_video.split('.')[0]
                         movie_names.append(movie_name)
-                        os.system(f'touch ./kodi-tmdb/movies/"{movie_name}"')
+                        os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
                         # 等待刮削完成
                         sleep(3)
                         # 上传电影图片与nfo
-                        for dirpath, dirnames, filenames in os.walk('./kodi-tmdb/movies'):
+                        for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
                             # 上传图片
                             for file_name in filenames:
                                 if file_name.startswith(f'{movie_name}') and file_name.endswith('.jpg'):
