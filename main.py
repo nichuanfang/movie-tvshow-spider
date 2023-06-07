@@ -107,8 +107,9 @@ def crawl_movie(ali_drive:Alidrive):
                     if movie_collection_folder.type == 'folder':
                         movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
                         # 获取阿里云盘该电影集的其中某部电影的文件id
-                        movie_collection_id = ali_drive.get_folder_by_path(f'movies/{movie_folder.name}')
-                        if movie_collection_id == None:
+                        try:
+                            movie_collection_id = ali_drive.get_folder_by_path(f'movies/{movie_folder.name}').file_id  # type: ignore
+                        except:
                             create_collcetion_res = ali_drive.aligo.create_folder(f'{movie_folder.name}',movies.file_id)
                             movie_collection_id = create_collcetion_res.file_id
                         for movie_collection_file in movie_collection_files:
