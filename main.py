@@ -89,7 +89,6 @@ def crawl_shows(ali_drive:Alidrive):
 if __name__=='__main__':
     try:
         base64_userdata = sys.argv[1]
-        kodi_tmdb_config = sys.argv[2]
     except:
         base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
     prepare_for_aligo(base64_userdata) # type: ignore
