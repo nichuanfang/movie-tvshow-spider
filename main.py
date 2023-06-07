@@ -208,7 +208,7 @@ def extract_movie_new_name(movie_json_path:str):
         logger.info(f'解析电影集中文名称:{movie_collection_new_name}')
     except:
         movie_collection_new_name = None
-    return (movie_new_name,movie_collection_new_name)
+    return (movie_new_name,movie_collection_new_name) 
 
 
 # 刮削剧集
