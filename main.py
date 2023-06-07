@@ -63,20 +63,23 @@ def crawl_movie(ali_drive:Alidrive):
                     if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
                         # 电影
                         movie_video = movie_folder_file.name
-                        movie_name = movie_video.split('.')[0]
+                        movie_name = movie_video.rsplit('.',1)[0]
                         movie_names.append(movie_name)
-                        os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
-                        # 等待刮削完成
-                        sleep(3)
-                        # 上传电影图片与nfo
-                        for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
-                            # 上传图片
-                            for file_name in filenames:
-                                if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
-                                    logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                    ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                            # 上传演员图片
-                            pass
+                        
+                        # 判断该电影文件夹是否存在nfo文件
+                        if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
+                            os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
+                            # 等待刮削完成
+                            sleep(3)
+                            # 上传电影图片与nfo
+                            for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
+                                # 上传图片
+                                for file_name in filenames:
+                                    if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
+                                        logger.info(f'开始上传{dirpath}/{file_name}图片...')
+                                        ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
+                                # 上传演员图片
+                                pass
                 else:
                     # 电影集
                     pass
