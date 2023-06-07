@@ -82,13 +82,19 @@ def crawl_movie(ali_drive:Alidrive):
                                             ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
                                 if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
                                     logger.success(f'电影:  {movie_name}刮削成功!')
+                                    logger.success(f' ')
+                                    logger.success(f' ')
+                                    logger.success(f' ')
+                                    logger.success(f' ')
+                                else:
+                                    logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
+                                    logger.warning('')
+                                    logger.warning('')
+                                    logger.warning('')
+                                    logger.warning('')
                                 # 上传成功就将该文件夹移动到movies文件夹中
                                 # 如果movies有同名文件夹 直接覆盖
                                 
-                                logger.success(f' ')
-                                logger.success(f' ')
-                                logger.success(f' ')
-                                logger.success(f' ')
             else:
                 # 电影集文件夹
                 # 获取电影集下面的电影
