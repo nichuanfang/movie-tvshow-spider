@@ -16,6 +16,7 @@ import sys
 import subprocess
 import os
 import re
+import requests
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
 
@@ -32,6 +33,8 @@ SEASON_DICT = {
     '九': '09',
     '十': '10'
 }
+# 季图片url地址前缀
+SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
@@ -295,10 +298,17 @@ def crawl_shows(ali_drive:Alidrive):
             ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/tvshow.nfo',show_folder.file_id,check_name_mode='refuse')
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
             
-            # 修改剧集文件夹名 
+            # 修改剧集文件夹名  根据tv.json生成季海报图
             with open(f'kodi-tmdb/shows/{show_folder.name}/tmdb/tv.json') as shows_f:
                 shows_data = json.load(shows_f)
                 ali_drive.aligo.rename_file(show_folder.file_id,f'{shows_data["name"]} ({shows_data["first_air_date"].split("-")[0]})',check_name_mode='refuse')
+                seasons_json_data:list = shows_data['seasons']
+                for seasons_json_data_item in seasons_json_data:
+                    s_index = seasons_json_data_item['season_number']
+                    # 生成季海报图片
+                    with open(f'kodi-tmdb/shows/{show_folder.name}/season{str(s_index).zfill(2)}-poster.jpg','wb') as sjdi:
+                        img_res = requests.get(f'{SEASON_BASE_URL}{seasons_json_data_item["poster_path"]}')
+                        sjdi.write(img_res.content)
             
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
