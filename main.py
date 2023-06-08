@@ -87,10 +87,11 @@ def crawl_movie(ali_drive:Alidrive):
                         if max_size < item.size:
                             max_size = item.size
                             movie_folder_file = item
-                dp.remove(movie_folder_file)
-                # 移除其他视频文件
-                for dpi in dp:
-                    ali_drive.aligo.move_file_to_trash(dpi.file_id)
+                if len(dp)>1:
+                    dp.remove(movie_folder_file)
+                    # 移除其他视频文件
+                    for dpi in dp:
+                        ali_drive.aligo.move_file_to_trash(dpi.file_id)
                 
                 if movie_folder_file.type == 'file':
                     if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
@@ -148,10 +149,28 @@ def crawl_movie(ali_drive:Alidrive):
                 for movie_collection_folder in movie_folder_files:
                     if movie_collection_folder.type == 'folder':
                         movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
+                        # 只保留最大的视频文件
+                        max_size = 0
+                        collection_file:BaseFile = None # type: ignore
+                        dp = []
+                        for item in movie_collection_files:
+                            if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                                dp.append(item)
+                                if max_size < item.size:
+                                    max_size = item.size
+                                    collection_file = item
+                        if len(dp)>1:
+                            dp.remove(collection_file)
+                            # 移除其他视频文件
+                            for dpi in dp:
+                                ali_drive.aligo.move_file_to_trash(dpi.file_id)
+                        
                         for movie_collection_file in movie_collection_files:
                             
-                            
                             if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                                # 只保留最大的视频文件
+                                
+                                
                                 # 电影mkv等视频文件名
                                 movie_video = movie_collection_file.name
                                 # 电影名(不带扩展名)
