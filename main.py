@@ -56,9 +56,6 @@ def crawling():
     
     crawl_shows(ali_drive)
     
-    # 2. 获取剧集文件夹 TODO
-
-
  
 def crawl_movie(ali_drive:Alidrive):
     # 获取电影文件
@@ -74,57 +71,73 @@ def crawl_movie(ali_drive:Alidrive):
         
         movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
         for movie_folder in movie_folders:
+            if movie_folder.type == 'file':
+                continue
             # 判断该文件夹下面是否直接有视频文件 来区分电影和电影集
             movie_folder_files = ali_drive.get_file_list(movie_folder.file_id)
-            if bool(list(filter(lambda x: x.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')),movie_folder_files))):
+            if bool(list(filter(lambda x: x.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')),movie_folder_files))): # type: ignore
                 # 电影文件夹
-                for movie_folder_file in movie_folder_files:
-                    if movie_folder_file.type == 'file':
-                        if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
-                            # 电影mkv等视频文件名
-                            movie_video = movie_folder_file.name
-                            # 电影名(不带扩展名)
-                            movie_name = movie_video.rsplit('.',1)[0]
-                            
-                            # 判断该电影文件夹是否存在nfo文件
-                            if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
-                                os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
-                                # 等待刮削完成
-                                logger.info(f'开始刮削电影:  {movie_name}...')
-                                sleep(5)
-                                # 上传电影图片与nfo
-                                for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
-                                    # 上传图片
-                                    for file_name in filenames:
-                                        if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
-                                            logger.info(f'开始上传{dirpath}/{file_name}图片...')
-                                            ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
-                                if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
-                                    logger.success(f'电影:  {movie_name}刮削成功!')
-                                    # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
-                                    logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
-                                    extract_res = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
-                                    new_name = extract_res[0]
-                                    dest_id = movies.file_id
-                                    # 如果电影集文件夹存在 则新增至电影集
-                                    if extract_res[1] != None:
-                                        collection_res:BaseFile = ali_drive.get_folder_by_path(f'movies/{extract_res[1]}') # type: ignore
-                                        if collection_res != None:
-                                            dest_id = collection_res.file_id
-                                        else:
-                                            # 创建电影集
-                                            create_res = ali_drive.aligo.create_folder(f'{extract_res[1]}',movies.file_id)
-                                            dest_id = create_res.file_id
-                                    move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=dest_id,new_name=new_name)
-                                    try:
-                                        file_id = move_res.file_id
-                                        logger.success(f'tmm电影文件夹: {new_name}-{file_id}已成功移动至movies')
-                                    except:
-                                        logger.warning(f'tmm电影文件夹: {new_name}移动至movies失败,movies存在相同的文件夹!')
-                                        ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
-                                    
-                                else:
-                                    logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
+                # 只保留最大的视频文件
+                max_size = 0
+                movie_folder_file:BaseFile = None # type: ignore
+                dp = []
+                for item in movie_folder_files:
+                    if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                        dp.append(item)
+                        if max_size < item.size:
+                            max_size = item.size
+                            movie_folder_file = item
+                dp.remove(movie_folder_file)
+                # 移除其他视频文件
+                for dpi in dp:
+                    ali_drive.aligo.move_file_to_trash(dpi.file_id)
+                
+                if movie_folder_file.type == 'file':
+                    if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                        # 电影mkv等视频文件名
+                        movie_video = movie_folder_file.name
+                        # 电影名(不带扩展名)
+                        movie_name = movie_video.rsplit('.',1)[0]
+                        
+                        # 判断该电影文件夹是否存在nfo文件
+                        if not bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
+                            os.system(f'touch ./kodi-tmdb/movies/"{movie_video}"')
+                            # 等待刮削完成
+                            logger.info(f'开始刮削电影:  {movie_name}...')
+                            sleep(5)
+                            # 上传电影图片与nfo
+                            for dirpath, dirnames, filenames in os.walk(f'./kodi-tmdb/movies'): # type: ignore
+                                # 上传图片
+                                for file_name in filenames:
+                                    if file_name.startswith(f'{movie_name}') and file_name.endswith(('.jpg','.nfo')):
+                                        logger.info(f'开始上传{dirpath}/{file_name}图片...')
+                                        ali_drive.aligo.upload_file(f'{dirpath}/{file_name}',movie_folder.file_id)
+                            if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
+                                logger.success(f'电影:  {movie_name}刮削成功!')
+                                # 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
+                                logger.info(f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
+                                extract_res = extract_movie_new_name(f'./kodi-tmdb/movies/tmdb/{movie_video}.movie.json')
+                                new_name = extract_res[0]
+                                dest_id = movies.file_id
+                                # 如果电影集文件夹存在 则新增至电影集
+                                if extract_res[1] != None:
+                                    collection_res:BaseFile = ali_drive.get_folder_by_path(f'movies/{extract_res[1]}') # type: ignore
+                                    if collection_res != None:
+                                        dest_id = collection_res.file_id
+                                    else:
+                                        # 创建电影集
+                                        create_res = ali_drive.aligo.create_folder(f'{extract_res[1]}',movies.file_id)
+                                        dest_id = create_res.file_id
+                                move_res = ali_drive.aligo.move_file(file_id=movie_folder.file_id,to_parent_file_id=dest_id,new_name=new_name)
+                                try:
+                                    file_id = move_res.file_id
+                                    logger.success(f'tmm电影文件夹: {new_name}-{file_id}已成功移动至movies')
+                                except:
+                                    logger.warning(f'tmm电影文件夹: {new_name}移动至movies失败,movies存在相同的文件夹!')
+                                    ali_drive.aligo.move_file_to_trash(movie_folder.file_id)
+                                
+                            else:
+                                logger.warning(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
                                 
                                 
             else:
@@ -136,6 +149,8 @@ def crawl_movie(ali_drive:Alidrive):
                     if movie_collection_folder.type == 'folder':
                         movie_collection_files = ali_drive.get_file_list(movie_collection_folder.file_id)
                         for movie_collection_file in movie_collection_files:
+                            
+                            
                             if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
                                 # 电影mkv等视频文件名
                                 movie_video = movie_collection_file.name
@@ -230,6 +245,9 @@ def crawl_shows(ali_drive:Alidrive):
     
     show_folders = ali_drive.get_file_list(tmm_tvshows.file_id)
     
+    # TODO 如果剧集文件夹下面直接有mkv文件(单季剧集) 将mkv文件移动到Season1中
+    
+    
     # 遍历剧集文件夹
     for show_folder in show_folders:
         seasons = ali_drive.get_file_list(show_folder.file_id)
@@ -304,7 +322,6 @@ def crawl_shows(ali_drive:Alidrive):
         except:
             logger.info(f'剧集:  {show_folder.name}已存在,无需新增')
             continue
-                
     
 def extract_season(season_name:str):
     """提取季信息
