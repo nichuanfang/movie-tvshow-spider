@@ -261,15 +261,23 @@ def crawl_shows(ali_drive:Alidrive):
     tmm_tvshows:BaseFile = ali_drive.get_folder_by_path('tmm/tmm-tvshows')  # type: ignore
     # 刮削好的文件夹
     tvshows:BaseFile = ali_drive.get_folder_by_path('TvShows') # type: ignore
-    
+    # 获取所有剧集文件合集
     show_folders = ali_drive.get_file_list(tmm_tvshows.file_id)
     
-    # TODO 如果剧集文件夹下面直接有mkv文件(单季剧集) 将mkv文件移动到Season1中
-    
-    
-    # 遍历剧集文件夹
+    # 遍历剧集文件夹合集
     for show_folder in show_folders:
         seasons = ali_drive.get_file_list(show_folder.file_id)
+        # 如果剧集文件夹下面直接有mkv文件(单季剧集) 将mkv文件移动到Season1中
+        videos = list(filter(lambda x:(x.type=='file') and (x.file_extension in (('mkv','mp4','avi','rmvb','wmv','mpeg'))),seasons))
+        if len(videos)!=0:
+            # 创建Season1文件夹
+            create_res = ali_drive.aligo.create_folder('Season1',show_folder.file_id,check_name_mode='refuse')
+            if not create_res.exist:
+                seasons.append(ali_drive.get_file(create_res.file_id))
+            for video in videos:
+                ali_drive.aligo.move_file(video.file_id,create_res.file_id)
+                seasons.remove(video)
+        
         # 判断是否需要刮削 有nfo文件的不需要
         if len(list(filter(lambda x:x.name=='tvshow.nfo',seasons))) != 0:
             logger.info(f'剧集: {show_folder.name}无需刮削,跳过')
@@ -380,4 +388,4 @@ if __name__=='__main__':
     
     # 随机生成一个文件 保持仓库处于活跃
     open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join \
-                                            (random.sample('-abcdefghigklmnopqrstuvwxyz1234567890',20)))
+                                            (random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
