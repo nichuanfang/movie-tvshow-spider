@@ -368,9 +368,9 @@ def crawl_shows(ali_drive:Alidrive):
                 # 从剩下的文件夹寻找字幕文件 如果扩展名正确+数量正确就移动到季目录
                 
                 for episode_folder in episode_folders:
-                    folder_file_list = ali_drive.get_file_list(episode_folder)
+                    folder_file_list = ali_drive.get_file_list(episode_folder.file_id)
                     # 当前文件夹的字幕文件
-                    subtitles = list(filter(lambda x: (x.type == 'file') and (x.file_extension in ['ass','srt','smi','ssa','sub']) ,folder_file_list))
+                    subtitles = list(filter(lambda x: (x!=None) and (x.type == 'file') and (x.file_extension in ['ass','srt','smi','ssa','sub']) ,folder_file_list))
                     if len(subtitles)==0:
                         continue
                     else:
