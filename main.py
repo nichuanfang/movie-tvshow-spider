@@ -342,13 +342,17 @@ def crawl_shows(ali_drive:Alidrive):
                 elif episode.type == 'folder' and episode.name!= '.actors':
                     episode_folders.append(episode)
                     
+            if len(episode_videos)==0:
+                # 没有视频文件停止这一季的刮削
+                continue
             # 对视频文件排序
             episode_videos.sort(key=lambda x: x.name,reverse=False)
-            # 对字幕文件排序
-            subtitles.sort(key=lambda x: x.name,reverse=False)
-            
             if len(subtitles) == len(episode_videos):
                 # 季文件夹下已有字幕文件且数量和视频文件一致
+                
+                # 对字幕文件排序
+                subtitles.sort(key=lambda x: x.name,reverse=False)
+                
                 # 重命名字幕文件
                 for index,subtitle in enumerate(subtitles):
                     # 获取当前扩展名
@@ -369,6 +373,8 @@ def crawl_shows(ali_drive:Alidrive):
                     subtitles = list(filter(lambda x: (x.type == 'file') and (x.file_extension in ['ass','srt','smi','ssa','sub']) ,folder_file_list))
                     if len(subtitles)==0:
                         continue
+                    else:
+                        subtitle_parent_folder_id = subtitles[0].parent_file_id
                     # 对字幕文件排序
                     subtitles.sort(key=lambda x: x.name,reverse=False)
                     if len(subtitles) == len(episode_videos):
@@ -382,9 +388,10 @@ def crawl_shows(ali_drive:Alidrive):
                             if new_sub_title == subtitle.name:
                                 # 如果是已处理好的字幕文件无需调用重命名接口
                                 break
-                            # 重命名
-                            ali_drive.rename(subtitle.file_id,new_sub_title)
-                        # 一旦有合适的字幕文件 处理完就停止处理
+                            # 移动并重命名
+                            ali_drive.move(file_id=subtitle.file_id,to_parent_file_id=episode_videos[index].parent_file_id,new_name=new_sub_title)
+                        # 一旦有合适的字幕文件 处理完就停止处理 并删除字幕文件父文件夹
+                        ali_drive.move_to_trash(subtitle_parent_folder_id)
                         break
             
             # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
