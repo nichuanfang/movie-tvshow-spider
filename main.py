@@ -356,6 +356,10 @@ def crawl_shows(ali_drive:Alidrive):
                 for index,subtitle in enumerate(subtitles):
                     # 获取当前扩展名
                     subtitle_extension = subtitle.file_extension
+                    # 判断是否需要重命名
+                    if f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}' == subtitle.name:
+                        # 如果是已处理好的字幕文件无需调用重命名接口
+                        break
                     # 重命名
                     ali_drive.rename(subtitle.file_id,f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}')
                 subtitle_handled = True
