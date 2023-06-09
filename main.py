@@ -275,9 +275,8 @@ def crawl_shows(ali_drive:Alidrive):
         if len(videos)!=0:
             # 创建Season1文件夹
             create_res = ali_drive.aligo.create_folder('Season1',show_folder.file_id,check_name_mode='refuse')
-            for season in seasons:
-                # 将所有文件移动到Season1
-                ali_drive.aligo.move_file(season.file_id,create_res.file_id)
+            # 将所有文件移动到Season1
+            ali_drive.aligo.batch_move_files(list(map(lambda x:x.file_id,seasons)),create_res.file_id)
             seasons.clear()
             seasons.append(ali_drive.get_file(create_res.file_id))
         
@@ -329,26 +328,24 @@ def crawl_shows(ali_drive:Alidrive):
             except:
                 continue
             episodes = ali_drive.get_file_list(season.file_id)
-            
             # 保证剧集是能排序的 不用重命名
             episode_videos = []
-            
             # 对字幕重命名 从季文件夹开始寻找字幕文件
-            
             episode_folders = []
-            # 标记字幕是否以及处理 默认未处理
+            
             subtitles = []
-            subtitle_handled = False
             for episode in episodes: 
                 if episode.type == 'file'  and episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg']: 
                     episode_videos.append(episode)
                 elif episode.type == 'file' and episode.file_extension in ['ass','srt','smi','ssa','sub']:
                     subtitles.append(episode)
-                elif episode.type == 'folder':
+                elif episode.type == 'folder' and episode.name!= '.actors':
                     episode_folders.append(episode)
                     
             # 对视频文件排序
             episode_videos.sort(key=lambda x: x.name,reverse=False)
+            # 对字幕文件排序
+            subtitles.sort(key=lambda x: x.name,reverse=False)
             
             if len(subtitles) == len(episode_videos):
                 # 季文件夹下已有字幕文件且数量和视频文件一致
@@ -356,17 +353,39 @@ def crawl_shows(ali_drive:Alidrive):
                 for index,subtitle in enumerate(subtitles):
                     # 获取当前扩展名
                     subtitle_extension = subtitle.file_extension
+                    new_sub_title = f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}'
                     # 判断是否需要重命名
-                    if f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}' == subtitle.name:
+                    if new_sub_title == subtitle.name:
                         # 如果是已处理好的字幕文件无需调用重命名接口
                         break
                     # 重命名
-                    ali_drive.rename(subtitle.file_id,f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}')
-                subtitle_handled = True
+                    ali_drive.rename(subtitle.file_id,new_sub_title)
             else:
-                pass
+                # 从剩下的文件夹寻找字幕文件 如果扩展名正确+数量正确就移动到季目录
                 
-            
+                for episode_folder in episode_folders:
+                    folder_file_list = ali_drive.get_file_list(episode_folder)
+                    # 当前文件夹的字幕文件
+                    subtitles = list(filter(lambda x: (x.type == 'file') and (x.file_extension in ['ass','srt','smi','ssa','sub']) ,folder_file_list))
+                    if len(subtitles)==0:
+                        continue
+                    # 对字幕文件排序
+                    subtitles.sort(key=lambda x: x.name,reverse=False)
+                    if len(subtitles) == len(episode_videos):
+                        # 季文件夹下已有字幕文件且数量和视频文件一致
+                        # 重命名字幕文件
+                        for index,subtitle in enumerate(subtitles):
+                            # 获取当前扩展名
+                            subtitle_extension = subtitle.file_extension
+                            new_sub_title = f'{episode_videos[index].name.rsplit(".",1)[0]}.{subtitle_extension}'
+                            # 判断是否需要重命名
+                            if new_sub_title == subtitle.name:
+                                # 如果是已处理好的字幕文件无需调用重命名接口
+                                break
+                            # 重命名
+                            ali_drive.rename(subtitle.file_id,new_sub_title)
+                        # 一旦有合适的字幕文件 处理完就停止处理
+                        break
             
             # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
             for index,episode_video in enumerate(episode_videos):
