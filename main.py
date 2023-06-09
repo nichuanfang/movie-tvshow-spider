@@ -275,16 +275,24 @@ def crawl_shows(ali_drive:Alidrive):
         if len(videos)!=0:
             # 创建Season1文件夹
             create_res = ali_drive.aligo.create_folder('Season1',show_folder.file_id,check_name_mode='refuse')
-            if not create_res.exist:
-                seasons.append(ali_drive.get_file(create_res.file_id))
-            for video in videos:
-                ali_drive.aligo.move_file(video.file_id,create_res.file_id)
-                seasons.remove(video)
+            for season in seasons:
+                ali_drive.aligo.move_file(season.file_id,create_res.file_id)
+            seasons.clear()
+            seasons.append(ali_drive.get_file(create_res.file_id))
+            # if not create_res.exist:
+            #     seasons.append(ali_drive.get_file(create_res.file_id))
+            # for video in videos:
+            #     ali_drive.aligo.move_file(video.file_id,create_res.file_id)
+            #     seasons.remove(video)
         
         # 判断是否需要刮削 有nfo文件的不需要
         if len(list(filter(lambda x:x.name=='tvshow.nfo',seasons))) != 0:
             logger.info(f'剧集: {show_folder.name}无需刮削,跳过')
             continue
+        
+        # 将所有文件移动到Season1
+        
+        
         
         # show_folder.name非常重要! 刮削剧集主海报图片和横幅主要靠这个剧集根文件夹 标准格式(TMDB): 剧集名称 (年份)   如 雷神3：诸神黄昏 (2017) , 教父 (1972) 
         
