@@ -444,6 +444,7 @@ def extract_season(season_name:str):
     return -1
 
 if __name__=='__main__':
+    open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join(random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
     try:
         # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
@@ -456,5 +457,4 @@ if __name__=='__main__':
     crawling()
     
     # 随机生成一个文件 保持仓库处于活跃
-    open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join \
-                                            (random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
+    open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join(random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
