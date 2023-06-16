@@ -349,7 +349,6 @@ def crawl_shows(ali_drive:Alidrive):
             episode_videos.sort(key=lambda x: x.name,reverse=False)
             if len(subtitles) >= len(episode_videos):
                 # 季文件夹下已有字幕文件且数量和视频文件一致
-                
                 # 对字幕文件排序
                 subtitles.sort(key=lambda x: x.name,reverse=False)
                 # 取前几个字幕
@@ -440,11 +439,9 @@ def extract_season(season_name:str):
                 return int(SEASON_DICT[season_tag])
             else:
                 return int(season_tag)    
-            
     return -1
 
 if __name__=='__main__':
-    open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join(random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
     try:
         # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
