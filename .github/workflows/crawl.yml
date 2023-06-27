@@ -38,6 +38,11 @@ jobs:
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
+          
+      - name: pull
+        run: |
+          git checkout .
+          git pull --allow-unrelated-histories
 
       - name: execute
         id: execute
@@ -45,11 +50,6 @@ jobs:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
         run: |
           python main.py $ALIGO_TOKEN
-
-      - name: pull
-        run: |
-          git checkout .
-          git pull --allow-unrelated-histories
 
       - name: keep alive
         uses: Smart-Transportation/push@v1.3
