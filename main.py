@@ -73,7 +73,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
         # 执行linux命令
         # print(f'::set-output name=aligo_token::{aligo_config_str}')
-        os.system(f'echo "echo "aligo_token={aligo_config_str}" >> $GITHUB_OUTPUT')
+        os.system(f'echo "aligo_token={aligo_config_str}" >> $GITHUB_OUTPUT')
         return aligo
     else:
         try:
