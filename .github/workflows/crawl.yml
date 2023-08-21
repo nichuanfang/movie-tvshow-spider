@@ -38,7 +38,7 @@ jobs:
           chmod +x kodi-tmdb-linux-amd64
           ./kodi-tmdb-linux-amd64 &
           echo 'kodi-tmdb is started!'
-          
+
       - name: pull
         run: |
           git checkout .
@@ -48,8 +48,20 @@ jobs:
         id: execute
         env:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
+          QQ_SMTP_PASSWORD: ${{ secrets.QQ_SMTP_PASSWORD }}
         run: |
-          python main.py $ALIGO_TOKEN
+          python main.py $ALIGO_TOKEN $QQ_SMTP_PASSWORD
+
+      - name: 更新ALIGO_TOKEN
+        uses: jon-grey/github-actions-secrets-creator@v1
+        if:
+          # 如果${{ steps.execute.outputs.aligo_token }}存在
+          steps.execute.outputs.aligo_token
+        with:
+          location: nichuanfang/movie-tvshow-spider
+          name: ALIGO_TOKEN
+          value: ${{ steps.execute.outputs.aligo_token }}
+          pa_token: ${{ secrets.GH_TOKEN }}
 
       - name: keep alive
         uses: Smart-Transportation/push@v1.3
@@ -60,7 +72,7 @@ jobs:
           author_email: 'f18326186224@gmail.com'
           author_name: 'nichuanfang'
           message: '🐳 chore: keep action alive'
-          
+
       # BARK通知 可选
       - name: Push notification
         env:

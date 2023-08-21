@@ -1,8 +1,9 @@
 #!/usr/local/bin/python
 # coding=utf-8
 from time import sleep
-from aligo import Aligo
+from aligo import Aligo,EMailConfig
 from aligo.types.Enum import CheckNameMode
+from pathlib import Path
 import time
 import random
 from aliyundrive.ali_drive import Alidrive
@@ -37,7 +38,7 @@ SEASON_DICT = {
 SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 
 # 准备aligo需要的配置文件
-def prepare_for_aligo(base64_userdata:str):
+def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
     # Path.home():   /home/runner/.aligo
     # wd: /home/runner/work/movie-tvshow-spider/movie-tvshow-spider
 
@@ -46,19 +47,46 @@ def prepare_for_aligo(base64_userdata:str):
     subprocess.call('mkdir -p /home/runner/.aligo',shell=True)
     aligo_config_str = base64.b64decode(base64_userdata).decode(encoding='utf-8')
     aligo_config:dict = json.loads(aligo_config_str)
-    try:
-        with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
-            json.dump(aligo_config,aligo_file)
-    except:
-        pass
+    expire_time:str = aligo_config['expire_time']
+    # 计算距离今天的天数
+    expire_time = time.strptime(expire_time,'%Y-%m-%dT%H:%M:%SZ')
+    expire_time = time.mktime(expire_time)
+    now = time.time()
+    days = (now - expire_time) / (24 * 60 * 60)
+    if days >= 30:
+        # 重新通过扫码登录
+        email_config = EMailConfig(
+        email='1290274972@qq.com',
+        host='smtp.qq.com',
+        port=465,
+        user='1290274972@qq.com',
+        password=QQ_SMTP_PASSWORD,
+        )
+        # 删除aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json文件
+        aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
+        if aligo_config_folder.exists():
+            aligo_config_folder.unlink()
+        aligo = Aligo(email=email_config)
+        aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
+        # 将配置信息base64编码更新到github的secrets中
+        aligo_config_str = json.dumps(aligo_config)
+        aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
+        print(f'::set-output name=aligo_token::{aligo_config_str}')
+        return aligo
+    else:
+        try:
+            with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
+                json.dump(aligo_config,aligo_file)
+                return Aligo()
+        except:
+            return Aligo()
 
-def crawling():
-    ali_drive = Alidrive(Aligo())
-    
+def crawling(aligo:Aligo):
+    ali_drive = Alidrive(aligo)
+    # 刮削电影
     crawl_movie(ali_drive)
-    
+    # 刮削剧集
     crawl_shows(ali_drive)
-    
  
 def crawl_movie(ali_drive:Alidrive):
     # 获取电影文件
@@ -445,13 +473,14 @@ if __name__=='__main__':
     try:
         # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
+        QQ_SMTP_PASSWORD = sys.argv[2]
     except:
         base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
+        QQ_SMTP_PASSWORD = open(f'aliyundrive/qq_smtp_password','r+',encoding='utf-8').read()
         
-        
-    prepare_for_aligo(base64_userdata) # type: ignore
+    aligo = prepare_for_aligo(base64_userdata,QQ_SMTP_PASSWORD) 
     
-    crawling()
+    crawling(aligo)
     
     # 随机生成一个文件 保持仓库处于活跃
     open('dist-version','w+').write(time.strftime("%Y-%m-%d",time.localtime(time.time()))+'-'+''.join(random.sample('abcdefghigklmnopqrstuvwxyz1234567890',20)))
