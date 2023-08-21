@@ -474,12 +474,11 @@ if __name__=='__main__':
         # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
         QQ_SMTP_PASSWORD = sys.argv[2]
+        aligo = prepare_for_aligo(base64_userdata,QQ_SMTP_PASSWORD)
     except:
-        base64_userdata = open(f'aliyundrive/token','r+',encoding='utf-8').read()
-        QQ_SMTP_PASSWORD = open(f'aliyundrive/qq_smtp_password','r+',encoding='utf-8').read()
+        # 本地环境直接扫码
+        aligo = Aligo()
         
-    aligo = prepare_for_aligo(base64_userdata,QQ_SMTP_PASSWORD) 
-    
     crawling(aligo)
     
     # 随机生成一个文件 保持仓库处于活跃
