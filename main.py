@@ -370,15 +370,18 @@ def crawl_shows(ali_drive:Alidrive):
                     subtitles.append(episode)
                 elif episode.type == 'folder' and episode.name!= '.actors':
                     episode_folders.append(episode)
-                    
+            
             if len(episode_videos)==0:
                 # 没有视频文件停止这一季的刮削
                 continue
             # 对视频文件排序
             episode_videos.sort(key=lambda x: x.name,reverse=False)
             
+            logger.info(f'-----------------排序后的视频文件:{len(episode_videos)}---------------------------')
+            
             # 重命名视频文件
             for index_,episode_video in enumerate(episode_videos):
+                logger.info(f'重命名视频:{episode_video.name}')
                 new_name = f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}.{episode_video.file_extension}'
                 episode_video.name = f'{new_name}'
                 ali_drive.aligo.rename_file(episode_video.file_id,f'{new_name}',check_name_mode=False)
