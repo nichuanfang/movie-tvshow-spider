@@ -378,9 +378,9 @@ def crawl_shows(ali_drive:Alidrive):
             episode_videos.sort(key=lambda x: x.name,reverse=False)
             
             # 重命名视频文件
-            for index_,episode_video_ in enumerate(episode_videos):
-                episode_video_.name = f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}'
-                ali_drive.aligo.rename_file(episode_video_.file_id,f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}',check_name_mode=False)
+            for index_,episode_video in enumerate(episode_videos):
+                episode_video.name = f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}'
+                ali_drive.aligo.rename_file(episode_video.file_id,f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}',check_name_mode=False)
             
             if len(subtitles) >= len(episode_videos):
                 # 季文件夹下已有字幕文件且数量和视频文件一致
