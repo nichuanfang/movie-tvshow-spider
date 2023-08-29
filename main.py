@@ -379,8 +379,9 @@ def crawl_shows(ali_drive:Alidrive):
             
             # 重命名视频文件
             for index_,episode_video in enumerate(episode_videos):
-                episode_video.name = f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}.{episode_video.file_extension}'
-                ali_drive.aligo.rename_file(episode_video.file_id,f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}',check_name_mode=False)
+                new_name = f'S{str(which_season).zfill(2)}E{str(index_+1).zfill(2)}.{episode_video.file_extension}'
+                episode_video.name = f'{new_name}'
+                ali_drive.aligo.rename_file(episode_video.file_id,f'{new_name}',check_name_mode=False)
             
             if len(subtitles) >= len(episode_videos):
                 # 季文件夹下已有字幕文件且数量和视频文件一致
