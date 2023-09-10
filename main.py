@@ -442,8 +442,8 @@ def crawl_shows(ali_drive:Alidrive):
                 sleep(3)
                 # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
                 try:
-                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id)
                     ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id)
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id)
                 except:
                     continue
         
