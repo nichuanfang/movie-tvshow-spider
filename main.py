@@ -107,14 +107,14 @@ def crawl_movie(ali_drive:Alidrive):
                 continue
             # 判断该文件夹下面是否直接有视频文件 来区分电影和电影集
             movie_folder_files = ali_drive.get_file_list(movie_folder.file_id)
-            if bool(list(filter(lambda x: x.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')),movie_folder_files))): # type: ignore
+            if bool(list(filter(lambda x: x.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')),movie_folder_files))): # type: ignore
                 # 电影文件夹
                 # 只保留最大的视频文件
                 max_size = 0
                 movie_folder_file:BaseFile = None # type: ignore
                 dp = []
                 for item in movie_folder_files:
-                    if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                    if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                         dp.append(item)
                         if max_size < item.size:
                             max_size = item.size
@@ -126,7 +126,7 @@ def crawl_movie(ali_drive:Alidrive):
                         ali_drive.aligo.move_file_to_trash(dpi.file_id)
                 
                 if movie_folder_file.type == 'file':
-                    if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                    if movie_folder_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                         # 电影mkv等视频文件名
                         movie_video = movie_folder_file.name
                         # 电影名(不带扩展名)
@@ -186,7 +186,7 @@ def crawl_movie(ali_drive:Alidrive):
                         collection_file:BaseFile = None # type: ignore
                         dp = []
                         for item in movie_collection_files:
-                            if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                            if item.type=='file' and item.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                                 dp.append(item)
                                 if max_size < item.size:
                                     max_size = item.size
@@ -199,7 +199,7 @@ def crawl_movie(ali_drive:Alidrive):
                         
                         for movie_collection_file in movie_collection_files:
                             
-                            if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg')):
+                            if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                                 # 只保留最大的视频文件
                                 
                                 
@@ -300,7 +300,7 @@ def crawl_shows(ali_drive:Alidrive):
     for show_folder in show_folders:
         seasons = ali_drive.get_file_list(show_folder.file_id)
         # 如果剧集文件夹下面直接有mkv文件(单季剧集) 将mkv文件移动到Season1中
-        videos = list(filter(lambda x:(x.type=='file') and (x.file_extension in (('mkv','mp4','avi','rmvb','wmv','mpeg'))),seasons))
+        videos = list(filter(lambda x:(x.type=='file') and (x.file_extension in (('mkv','mp4','avi','rmvb','wmv','mpeg','ts'))),seasons))
         if len(videos)!=0:
             # 创建Season1文件夹
             create_res = ali_drive.aligo.create_folder('Season1',show_folder.file_id,check_name_mode='refuse')
@@ -364,7 +364,7 @@ def crawl_shows(ali_drive:Alidrive):
             
             subtitles = []
             for episode in episodes: 
-                if episode.type == 'file'  and episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg']: 
+                if episode.type == 'file'  and episode.file_extension in ['mkv','mp4','avi','rmvb','wmv','mpeg','ts']: 
                     episode_videos.append(episode)
                 elif episode.type == 'file' and episode.file_extension in ['ass','srt','smi','ssa','sub']:
                     subtitles.append(episode)
