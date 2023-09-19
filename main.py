@@ -346,8 +346,9 @@ def crawl_shows(ali_drive:Alidrive):
             except:
                 pass
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
-            for sea_index,season_item in enumerate(season_number):
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(sea_index).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
+            
+            for sea_index in range(season_number):
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(sea_index+1).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
             
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
