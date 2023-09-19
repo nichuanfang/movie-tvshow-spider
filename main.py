@@ -374,18 +374,6 @@ def crawl_shows(ali_drive:Alidrive):
                 ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/tvshow.nfo',season.file_id,check_name_mode='refuse')
             except:
                 pass
-            try:
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/poster.jpg',season.file_id,check_name_mode='refuse')
-            except:
-                pass
-            try:
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/clearlogo.png',season.file_id,check_name_mode='refuse')
-            except:
-                pass
-            try:
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/fanart.jpg',season.file_id,check_name_mode='refuse')
-            except:
-                pass
             episodes = ali_drive.get_file_list(season.file_id)
             # 保证剧集是能排序的 不用重命名
             episode_videos = []
