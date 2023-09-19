@@ -314,6 +314,14 @@ def crawl_shows(ali_drive:Alidrive):
             logger.info(f'剧集: {show_folder.name}无需刮削,跳过')
             continue
         
+        season_number = 0
+        for season in seasons:
+            if not season.type == 'folder':
+                continue
+            season_number += 1
+            
+        raw_show_folder_name = show_folder.name
+        show_folder.name = f'{show_folder.name} S01-S{str(season_number).zfill(2)}'
         
         # show_folder.name非常重要! 刮削剧集主海报图片和横幅主要靠这个剧集根文件夹 标准格式(TMDB): 剧集名称 (年份)   如 雷神3：诸神黄昏 (2017) , 教父 (1972) 
         
@@ -331,9 +339,13 @@ def crawl_shows(ali_drive:Alidrive):
                 ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/fanart.jpg',show_folder.file_id,check_name_mode='refuse')
             except:
                 pass
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/clearlogo.png',show_folder.file_id,check_name_mode='refuse')
+            except:
+                pass
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
             
-            # 修改剧集文件夹名  根据tv.json生成季海报图
+            # # 修改剧集文件夹名  根据tv.json生成季海报图
             with open(f'kodi-tmdb/shows/{show_folder.name}/tmdb/tv.json') as shows_f:
                 shows_data = json.load(shows_f)
                 ali_drive.aligo.rename_file(show_folder.file_id,f'{shows_data["name"]} ({shows_data["first_air_date"].split("-")[0]})',check_name_mode='refuse')
@@ -357,19 +369,16 @@ def crawl_shows(ali_drive:Alidrive):
             if which_season == -1:
                 continue
             # 重命名季
-            new_season_name = f'{show_folder.name} S{str(which_season).zfill(2)}'
+            new_season_name = f'{raw_show_folder_name} S{str(which_season).zfill(2)}'
             
             # 创建季文件夹
             os.system(f'mkdir -p  ./kodi-tmdb/shows/"{show_folder.name}"/"{new_season_name}"')
             # 休眠3s等待kodi-tmdb进程刮削完成
             sleep(3)
             
-            ali_drive.aligo.rename_file(season.file_id,name=f'{new_season_name}',check_name_mode='overwrite')
-            
             # 上传tvshow.nfo和季图片
             try:
                 ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/tvshow.nfo',season.file_id,check_name_mode='refuse')
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/season{str(which_season).zfill(2)}-poster.jpg',season.file_id,check_name_mode='refuse')
             except:
                 pass
             try:
