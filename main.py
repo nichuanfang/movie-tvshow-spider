@@ -356,12 +356,34 @@ def crawl_shows(ali_drive:Alidrive):
             which_season = extract_season(season.name)
             if which_season == -1:
                 continue
+            # 重命名季
+            new_season_name = f'{show_folder.name} S{str(which_season).zfill(2)}'
             
-            # 上传季图片
+            # 创建季文件夹
+            os.system(f'mkdir -p  ./kodi-tmdb/shows/"{show_folder.name}"/"{new_season_name}"')
+            # 休眠3s等待kodi-tmdb进程刮削完成
+            sleep(3)
+            
+            ali_drive.aligo.rename_file(season.file_id,name=f'{new_season_name}',check_name_mode='overwrite')
+            
+            # 上传tvshow.nfo和季图片
             try:
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(which_season).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/tvshow.nfo',season.file_id,check_name_mode='refuse')
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/season{str(which_season).zfill(2)}-poster.jpg',season.file_id,check_name_mode='refuse')
             except:
-                continue
+                pass
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/poster.jpg',season.file_id,check_name_mode='refuse')
+            except:
+                pass
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/clearlogo.png',season.file_id,check_name_mode='refuse')
+            except:
+                pass
+            try:
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/fanart.jpg',season.file_id,check_name_mode='refuse')
+            except:
+                pass
             episodes = ali_drive.get_file_list(season.file_id)
             # 保证剧集是能排序的 不用重命名
             episode_videos = []
@@ -443,13 +465,13 @@ def crawl_shows(ali_drive:Alidrive):
             
             # 在./kodi-tmdb/shows创建名称为{which_episode}的空视频文件
             for index,episode_video in enumerate(episode_videos):
-                os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
+                os.system(f'touch ./kodi-tmdb/shows/"{show_folder.name}"/"{new_season_name}"/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.mkv')
                 # 休眠3s等待kodi-tmdb进程刮削完成
                 sleep(3)
                 # 将生成单集的缩略图和nfo文件上传到剧集文件夹  缩略图: SXXEXX-thumb.jpg  nfo: SXXEXX.nfo
                 try:
-                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id)
-                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id)
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}.nfo',season.file_id)
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/S{str(which_season).zfill(2)}E{str(index+1).zfill(2)}-thumb.jpg',season.file_id)
                 except:
                     continue
         
