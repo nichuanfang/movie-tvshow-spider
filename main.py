@@ -316,12 +316,14 @@ def crawl_shows(ali_drive:Alidrive):
         
         season_number = 0
         for season in seasons:
-            if not season.type == 'folder':
+            # 不是剧集文件夹
+            if not season.type == 'folder' or extract_season(season.name)==-1:
                 continue
             season_number += 1
-            
         raw_show_folder_name = show_folder.name
-        show_folder.name = f'{show_folder.name} S01-S{str(season_number).zfill(2)}'
+        if season_number>1:
+            # 合集
+            show_folder.name = f'{show_folder.name} S01-S{str(season_number).zfill(2)}'
         
         # show_folder.name非常重要! 刮削剧集主海报图片和横幅主要靠这个剧集根文件夹 标准格式(TMDB): 剧集名称 (年份)   如 雷神3：诸神黄昏 (2017) , 教父 (1972) 
         
@@ -344,18 +346,8 @@ def crawl_shows(ali_drive:Alidrive):
             except:
                 pass
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
-            
-            # # 修改剧集文件夹名  根据tv.json生成季海报图
-            with open(f'kodi-tmdb/shows/{show_folder.name}/tmdb/tv.json') as shows_f:
-                shows_data = json.load(shows_f)
-                ali_drive.aligo.rename_file(show_folder.file_id,f'{shows_data["name"]} ({shows_data["first_air_date"].split("-")[0]})',check_name_mode='refuse')
-                seasons_json_data:list = shows_data['seasons']
-                for seasons_json_data_item in seasons_json_data:
-                    s_index = seasons_json_data_item['season_number']
-                    # 生成季海报图片
-                    with open(f'kodi-tmdb/shows/{show_folder.name}/season{str(s_index).zfill(2)}-poster.jpg','wb') as sjdi:
-                        img_res = requests.get(f'{SEASON_BASE_URL}{seasons_json_data_item["poster_path"]}')
-                        sjdi.write(img_res.content)
+            for sea_index,season_item in enumerate(season_number):
+                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(sea_index).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
             
         except Exception as e:
             logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
