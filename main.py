@@ -348,7 +348,10 @@ def crawl_shows(ali_drive:Alidrive):
             logger.info(f'剧集: {show_folder.name}同人画,海报,nfo抓取成功')
             
             for sea_index in range(season_number):
-                ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(sea_index+1).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
+                try:
+                    ali_drive.aligo.upload_file(f'kodi-tmdb/shows/{show_folder.name}/season{str(sea_index+1).zfill(2)}-poster.jpg',show_folder.file_id,check_name_mode='refuse')
+                except:
+                    continue
             # 重命名show_folder
             ali_drive.rename(show_folder.file_id,raw_show_folder_name.split(' ')[0]+' '+raw_show_folder_name.split(' ')[-1],check_name_mode='overwrite')
             
