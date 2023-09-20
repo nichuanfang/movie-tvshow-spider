@@ -54,7 +54,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
     now = time.time()
     days = (now - expire_time) / (24 * 60 * 60)
     logger.info(f'距离上次登录已过去{days}天')
-    if days >= 30:
+    if days >= 29:
         # 重新通过扫码登录
         email_config = EMailConfig(
         email='1290274972@qq.com',
