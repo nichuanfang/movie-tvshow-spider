@@ -137,6 +137,13 @@ def  handle_shows_audio_sub_track(ali_drive:Alidrive):
                             logger.info(f'下载视频文件耗时{(end_time-start_time)/60}分钟')
                             # 只下载第一个文件
                             break
+                        
+                            # 视频轨道+音轨+字幕轨道 才是完整的轨道 0:0保留动画 0:2 保留第二个音频轨道 0:3保留第一个字幕
+                            
+                            # 设置默认音轨与字幕轨道
+                            # ffmpeg -i S01E01.mkv -map 0:0 -map 0:2  -map 0:3  -disposition:a:0 default -disposition:a:1 none -c copy -y output.mkv
+ 
+ 
                 
                     pass
             
