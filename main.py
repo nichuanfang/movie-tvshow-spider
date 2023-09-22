@@ -11,13 +11,11 @@ from loguru import logger
 import base64
 from aligo.types.BaseFile import BaseFile
 from aligo.response.CreateFileResponse import CreateFileResponse
-from pathlib import Path
 import json
 import sys
 import subprocess
 import os
 import re
-import requests
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
 
@@ -202,8 +200,6 @@ def crawl_movie(ali_drive:Alidrive):
                             
                             if movie_collection_file.name.lower().endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                                 # 只保留最大的视频文件
-                                
-                                
                                 # 电影mkv等视频文件名
                                 movie_video = movie_collection_file.name
                                 # 电影名(不带扩展名)
