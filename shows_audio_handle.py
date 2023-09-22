@@ -135,7 +135,7 @@ def  handle_shows_audio_sub_track(ali_drive:Alidrive):
                             logger.info('视频文件下载完成')
                             end_time = time.time()
                             logger.info(f'下载视频文件耗时{(end_time-start_time)/60}分钟')
-                            pass
+                            break
                 
                     pass
             
