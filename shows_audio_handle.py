@@ -128,7 +128,13 @@ def  handle_shows_audio_sub_track(ali_drive:Alidrive):
                     for season_file in season_file_list:
                         if season_file.type == 'file' and season_file.name.endswith(('mkv','mp4','avi','rmvb','wmv','mpeg','ts')):
                             # 下载视频文件
+                            # 统计下载耗时
+                            start_time = time.time()
+                            logger.info('开始下载视频文件')
                             ali_drive.aligo.download_file(file_id=season_file.file_id,local_folder=f'./downloads/{show_name}/{season_folder.name}')
+                            logger.info('视频文件下载完成')
+                            end_time = time.time()
+                            logger.info(f'下载视频文件耗时{(end_time-start_time)/60}分钟')
                             pass
                 
                     pass
