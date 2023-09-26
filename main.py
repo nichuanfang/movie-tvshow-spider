@@ -275,6 +275,14 @@ def extract_movie_new_name(movie_json_path:str):
     return (movie_new_name,movie_collection_new_name) 
 
 
+def extract_final_num(name:str):
+    # 提取字符串最后出现的数字
+    num = re.findall(r'\d+',name)
+    if len(num) == 0:
+        return -1
+    else:
+        return int(num[-1])
+
 # 刮削剧集
 def crawl_shows(ali_drive:Alidrive):
     # !强制的规范元数据结构
@@ -393,7 +401,7 @@ def crawl_shows(ali_drive:Alidrive):
                 # 没有视频文件停止这一季的刮削
                 continue
             # 对视频文件排序
-            episode_videos.sort(key=lambda x: x.name.split('E', 1)[1],reverse=False)
+            episode_videos.sort(key=lambda x: extract_final_num(x.name),reverse=False)
             
             logger.info(f'-----------------排序后的视频文件:{len(episode_videos)}---------------------------')
             
