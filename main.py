@@ -403,7 +403,7 @@ def crawl_shows(ali_drive:Alidrive):
             # 对视频文件排序
             episode_videos.sort(key=lambda x: extract_final_num(x.name),reverse=False)
             
-            logger.info(f'-----------------排序后的视频文件:{len(episode_videos)}---------------------------')
+            logger.info(f'-----------------排序后的视频文件:{episode_videos}---------------------------')
             
             # 重命名视频文件
             for index_,episode_video in enumerate(episode_videos):
@@ -412,7 +412,7 @@ def crawl_shows(ali_drive:Alidrive):
                 episode_video.name = f'{new_name}'
                 ali_drive.aligo.rename_file(episode_video.file_id,f'{new_name}',check_name_mode=False)
             
-            logger.info(f'字幕数目:{subtitles},剧集数目:{episode_videos}')
+            logger.info(f'字幕数目:{len(subtitles)},剧集数目:{len(episode_videos)}')
             if len(subtitles) >= len(episode_videos):
                 logger.info('-----------------------开始重命名字幕文件-----------------------------')
                 # 季文件夹下已有字幕文件且数量和视频文件一致
