@@ -395,7 +395,7 @@ def crawl_shows(ali_drive:Alidrive):
             # 对视频文件排序
             episode_videos.sort(key=lambda x: x.name,reverse=False)
             
-            logger.info(f'-----------------排序后的视频文件:{episode_videos}---------------------------')
+            logger.info(f'-----------------排序后的视频文件数目:{len(episode_videos)}---------------------------')
             
             # 重命名视频文件
             for index_,episode_video in enumerate(episode_videos):
@@ -404,7 +404,7 @@ def crawl_shows(ali_drive:Alidrive):
                 episode_video.name = f'{new_name}'
                 ali_drive.aligo.rename_file(episode_video.file_id,f'{new_name}',check_name_mode=False)
             
-            logger.info(f'字幕数目:{len(subtitles)},剧集数目:{len(episode_videos)}')
+            logger.info(f'字幕数目:{len(subtitles)}')
             if len(subtitles) >= len(episode_videos):
                 logger.info('-----------------------开始重命名字幕文件-----------------------------')
                 # 季文件夹下已有字幕文件且数量和视频文件一致
@@ -425,6 +425,11 @@ def crawl_shows(ali_drive:Alidrive):
                     # 重命名
                     ali_drive.rename(subtitle.file_id,new_sub_title)
             else:
+                logger.warning(f'剧集文件夹缺少字幕文件,请检查!')
+                # 提醒缺少的字幕文件 日志字幕的名称
+                for subtitle in subtitles:
+                    logger.info(f'-----------------字幕名称: {subtitle.name}--------------------------')
+                
                 # 从剩下的文件夹寻找字幕文件 如果扩展名正确+数量正确就移动到季目录
                 
                 for episode_folder in episode_folders:
