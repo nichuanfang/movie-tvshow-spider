@@ -395,7 +395,7 @@ def crawl_shows(ali_drive:Alidrive):
             # 对视频文件排序
             episode_videos.sort(key=lambda x: x.name,reverse=False)
             
-            logger.info(f'-----------------排序后的视频文件:{len(episode_vizendeos)}---------------------------')
+            logger.info(f'-----------------排序后的视频文件:{len(episode_videos)}---------------------------')
             
             # 重命名视频文件
             for index_,episode_video in enumerate(episode_videos):
