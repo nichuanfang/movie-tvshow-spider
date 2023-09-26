@@ -426,6 +426,8 @@ def crawl_shows(ali_drive:Alidrive):
                     ali_drive.rename(subtitle.file_id,new_sub_title)
             else:
                 logger.warning(f'剧集文件夹缺少字幕文件,请检查!')
+                # 对字幕文件排序
+                subtitles.sort(key=lambda x: x.name,reverse=False)
                 # 提醒缺少的字幕文件 日志字幕的名称
                 for subtitle in subtitles:
                     logger.info(f'-----------------字幕名称: {subtitle.name}--------------------------')
