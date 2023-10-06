@@ -61,15 +61,15 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
     now = time.time()
     days = (now - expire_time) / (24 * 60 * 60)
     logger.info(f'距离上次登录已过去{days}天')
-    if days >= 29:
-        # 重新通过扫码登录
-        email_config = EMailConfig(
+    email_config = EMailConfig(
         email='1290274972@qq.com',
         host='smtp.qq.com',
         port=465,
         user='1290274972@qq.com',
         password=QQ_SMTP_PASSWORD,
         )
+    if days >= 29:
+        # 重新通过扫码登录
         # 删除aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json文件
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
@@ -83,7 +83,6 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
         
         # 自动签到
-        logger.info(aligo_config)
         refresh_token = aligo_config['refresh_token']
         sign_in(refresh_token,QQ_SMTP_PASSWORD)
         return aligo
@@ -91,9 +90,12 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         try:
             with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
                 json.dump(aligo_config,aligo_file)
+                # 自动签到
+                refresh_token = aligo_config['refresh_token']
+                sign_in(refresh_token,QQ_SMTP_PASSWORD)
                 return Aligo()
         except:
-            return Aligo()
+            return Aligo(email=email_config)
 
 if __name__=='__main__':
     try:
