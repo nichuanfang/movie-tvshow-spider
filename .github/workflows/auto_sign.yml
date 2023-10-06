@@ -1,0 +1,73 @@
+# 阿里云盘自动签到
+name: Auto Sign In Aliyunpan
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Start sign in'
+
+jobs:
+  job1:
+    name: sign in
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: prepare python environment(v3.11)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: pip install
+        run: pip install -r requirements.txt
+
+      - name: pull
+        run: |
+          git checkout .
+          git pull --allow-unrelated-histories
+
+      - name: execute
+        id: execute
+        env:
+          ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
+          QQ_SMTP_PASSWORD: ${{ secrets.QQ_SMTP_PASSWORD }}
+        run: |
+          python auto_check_in.py $ALIGO_TOKEN $QQ_SMTP_PASSWORD
+
+      - name: 更新ALIGO_TOKEN
+        uses: jon-grey/github-actions-secrets-creator@v1
+        if:
+          # 如果${{ steps.execute.outputs.aligo_token }}存在
+          steps.execute.outputs.aligo_token
+        with:
+          location: nichuanfang/movie-tvshow-spider
+          name: ALIGO_TOKEN
+          value: ${{ steps.execute.outputs.aligo_token }}
+          pa_token: ${{ secrets.GH_TOKEN }}
+
+      - name: keep alive
+        uses: Smart-Transportation/push@v1.3
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          branch: 'main'
+          author_email: 'f18326186224@gmail.com'
+          author_name: 'nichuanfang'
+          message: '🐳 chore: keep action alive'
+
+      # BARK通知 可选
+      - name: Push notification
+        env:
+          key: ${{ secrets.BARK_KEY }}
+          host: ${{ vars.BARK_HOST }}
+          title: Signin%20result
+          body: Signin%20success
+          sound: calypso
+        run: |
+          curl -L "${{env.host}}/${{env.key}}/${{env.title}}/${{env.body}}?sound=${{env.sound}}"

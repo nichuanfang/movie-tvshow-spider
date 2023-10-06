@@ -16,6 +16,7 @@ import sys
 import subprocess
 import os
 import re
+
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
 
