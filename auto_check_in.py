@@ -12,8 +12,9 @@ from aliyundrive import aliyundriveAutoCheckin
 
 def sign_in(refresh_token:str,QQ_SMTP_PASSWORD:str):
     email_content = ""
-
+    
     if refresh_token != "":
+        logger.info('阿里云盘自动签到开始')
         response_data = aliyundriveAutoCheckin.get_token(refresh_token.strip())
         if isinstance(response_data, str):
             email_content += response_data
@@ -39,6 +40,7 @@ def sign_in(refresh_token:str,QQ_SMTP_PASSWORD:str):
 
         smtp_server, smtp_port, smtp_user, smtp_password = "smtp.qq.com", 465, "1290274972@qq.com", QQ_SMTP_PASSWORD
         aliyundriveAutoCheckin.send_email(smtp_server, smtp_port, smtp_user, smtp_password, smtp_user, email_content)
+        logger.info('阿里云盘自动签到成功')
 
 
 
@@ -81,6 +83,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
         
         # 自动签到
+        logger.info(aligo_config)
         refresh_token = aligo_config['refresh_token']
         sign_in(refresh_token,QQ_SMTP_PASSWORD)
         return aligo
