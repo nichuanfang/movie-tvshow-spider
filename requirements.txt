@@ -1,4 +1,3 @@
 aligo==6.1.8
-aliyundriveAutoCheckin==0.1.7.1
 loguru==0.7.0
 requests==2.27.1

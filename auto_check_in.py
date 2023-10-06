@@ -1,6 +1,5 @@
 # 阿里云盘自动签到
 import base64
-import datetime
 import json
 import os
 import subprocess
@@ -9,7 +8,7 @@ import time
 from aligo import Aligo,EMailConfig
 from loguru import logger
 from pathlib import Path
-from aliyundriveAutoCheckin import aliyundriveAutoCheckin
+from aliyundrive import aliyundriveAutoCheckin
 
 def sign_in(refresh_token:str,QQ_SMTP_PASSWORD:str):
     email_content = ""
