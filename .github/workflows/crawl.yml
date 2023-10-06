@@ -3,7 +3,7 @@ name: Crawl movies and tvshows
 on:
   repository_dispatch:
     types:
-      - crawl
+      - crawl movies and shows
   workflow_dispatch:
     inputs:
       tags:

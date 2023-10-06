@@ -4,7 +4,7 @@ name: Auto Sign In Aliyunpan
 on:
   repository_dispatch:
     types:
-      - auto_sign_in
+      - auto sign in
   workflow_dispatch:
     inputs:
       tags:
