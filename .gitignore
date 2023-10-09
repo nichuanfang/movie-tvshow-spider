@@ -172,3 +172,4 @@ kodi-tmdb/config.json
 kodi-tmdb/movies/tmdb
 downloads/*
 !downloads/__init__.py
+.pypirc
