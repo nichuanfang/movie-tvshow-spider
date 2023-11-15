@@ -10,7 +10,6 @@ from aliyundrive.ali_drive import Alidrive
 from loguru import logger
 import base64
 from aligo.types.BaseFile import BaseFile
-from aligo.response.CreateFileResponse import CreateFileResponse
 import json
 import sys
 import subprocess
@@ -75,6 +74,7 @@ def prepare_for_aligo(base64_userdata:str):
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
         aligo = Aligo(show=show_qrcode)
+        bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='阿里云盘登录成功!')
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
@@ -97,6 +97,7 @@ def prepare_for_aligo(base64_userdata:str):
             if aligo_config_folder.exists():
                 aligo_config_folder.unlink()
             aligo = Aligo(show=show_qrcode)
+            bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='阿里云盘登录成功!')
             aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
             # 将配置信息base64编码更新到github的secrets中
             aligo_config_str = json.dumps(aligo_config)
