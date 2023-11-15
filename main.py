@@ -72,7 +72,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
-        aligo = Aligo(email=email_config,show=show_qrcode)
+        aligo = Aligo(show=show_qrcode)
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
@@ -95,7 +95,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
             user='1290274972@qq.com',
             password=QQ_SMTP_PASSWORD,
             )   
-            return Aligo(email = email_config,show=show_qrcode)
+            return Aligo(show=show_qrcode)
 
 def crawling(aligo:Aligo):
     ali_drive = Alidrive(aligo)
