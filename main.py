@@ -84,13 +84,10 @@ def prepare_for_aligo(base64_userdata:str):
         return aligo
     else:
         try:
-            with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
-                # 在一个月内 不再需要重新登录 直接使用上次登录的密钥
-                json.dump(aligo_config,aligo_file)
-                # 自动签到
-                refresh_token = aligo_config['refresh_token']
-                # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
-                return Aligo(refresh_token=refresh_token,re_login=False)
+            # 在一个月内 不再需要重新登录 直接使用上次登录的密钥
+            refresh_token = aligo_config['refresh_token']
+            # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
+            return Aligo(refresh_token=refresh_token,re_login=False)
         except:
             # 登录失败 重新通过扫码登录 
             aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
