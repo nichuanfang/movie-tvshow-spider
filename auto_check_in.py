@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+from re import S
 import subprocess
 import sys
 import time
@@ -9,6 +10,12 @@ from aligo import Aligo,EMailConfig
 from loguru import logger
 from pathlib import Path
 from aliyundrive import aliyundriveAutoCheckin
+from telebot import TeleBot
+
+bot = TeleBot(token=os.environ['TG_TOKEN'])
+
+def  show_qrcode(qr_link:str):
+    bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='请点击链接扫码登录阿里云盘: '+qr_link)
 
 def sign_in(refresh_token:str,QQ_SMTP_PASSWORD:str):
     email_content = ""
@@ -74,7 +81,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
-        aligo = Aligo(email=email_config)
+        aligo = Aligo(email=email_config,show=show_qrcode)
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
@@ -95,7 +102,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
                 sign_in(refresh_token,QQ_SMTP_PASSWORD)
                 return Aligo()
         except:
-            return Aligo(email=email_config)
+            return Aligo(email=email_config,show=show_qrcode)
 
 if __name__=='__main__':
     try:

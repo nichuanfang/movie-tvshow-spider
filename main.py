@@ -39,6 +39,9 @@ SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 
 bot = TeleBot(token=os.environ['TG_TOKEN'])
 
+def  show_qrcode(qr_link:str):
+    bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='请点击链接扫码登录阿里云盘: '+qr_link)
+
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
     # Path.home():   /home/runner/.aligo
@@ -69,8 +72,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
-        bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='开始刮削电影和剧集...')
-        aligo = Aligo(email=email_config)
+        aligo = Aligo(email=email_config,show=show_qrcode)
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
@@ -80,12 +82,20 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         return aligo
     else:
         try:
-            bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='开始刮削电影和剧集...')
             with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
                 json.dump(aligo_config,aligo_file)
                 return Aligo()
         except:
-            return Aligo()
+            # 登录失败 发送邮件
+            # 重新通过扫码登录
+            email_config = EMailConfig(
+            email='1290274972@qq.com',
+            host='smtp.qq.com',
+            port=465,
+            user='1290274972@qq.com',
+            password=QQ_SMTP_PASSWORD,
+            )   
+            return Aligo(email = email_config,show=show_qrcode)
 
 def crawling(aligo:Aligo):
     ali_drive = Alidrive(aligo)
