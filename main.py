@@ -19,9 +19,6 @@ import re
 from telebot import TeleBot
 import qrcode
 import tempfile
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
@@ -55,7 +52,7 @@ def  show_qrcode(qr_link:str):
     bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=qr_data,caption='请扫码登录阿里云盘')
 
 # 准备aligo需要的配置文件
-def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
+def prepare_for_aligo(base64_userdata:str):
     # Path.home():   /home/runner/.aligo
     # wd: /home/runner/work/movie-tvshow-spider/movie-tvshow-spider
 
@@ -73,13 +70,6 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
     logger.info(f'距离上次登录已过去{days}天')
     if days >= 29:
         # 重新通过扫码登录
-        email_config = EMailConfig(
-        email='1290274972@qq.com',
-        host='smtp.qq.com',
-        port=465,
-        user='1290274972@qq.com',
-        password=QQ_SMTP_PASSWORD,
-        )
         # 删除aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json文件
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
@@ -98,16 +88,16 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
                 json.dump(aligo_config,aligo_file)
                 return Aligo()
         except:
-            # 登录失败 发送邮件
-            # 重新通过扫码登录
-            email_config = EMailConfig(
-            email='1290274972@qq.com',
-            host='smtp.qq.com',
-            port=465,
-            user='1290274972@qq.com',
-            password=QQ_SMTP_PASSWORD,
-            )   
-            return Aligo(show=show_qrcode)
+            # 登录失败
+            aligo = Aligo(show=show_qrcode)
+            aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
+            # 将配置信息base64编码更新到github的secrets中
+            aligo_config_str = json.dumps(aligo_config)
+            aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
+            # 更新
+            os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
+            return aligo
+            
 
 def crawling(aligo:Aligo):
     ali_drive = Alidrive(aligo)
@@ -537,8 +527,7 @@ if __name__=='__main__':
     try:
         # Aligo的配置文件aligo.json的base64字符串
         base64_userdata = sys.argv[1]
-        QQ_SMTP_PASSWORD = sys.argv[2]
-        aligo = prepare_for_aligo(base64_userdata,QQ_SMTP_PASSWORD)
+        aligo = prepare_for_aligo(base64_userdata)
     except:
         # 本地环境直接扫码
         aligo = Aligo()

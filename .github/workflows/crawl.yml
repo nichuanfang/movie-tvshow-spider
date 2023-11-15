@@ -50,11 +50,10 @@ jobs:
         id: execute
         env:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
-          QQ_SMTP_PASSWORD: ${{ secrets.QQ_SMTP_PASSWORD }}
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: |
-          python main.py $ALIGO_TOKEN $QQ_SMTP_PASSWORD
+          python main.py $ALIGO_TOKEN
 
       - name: 更新ALIGO_TOKEN
         uses: jon-grey/github-actions-secrets-creator@v1
