@@ -1,4 +1,6 @@
 aligo==6.1.8
 loguru==0.7.0
-requests==2.27.1
 pyTelegramBotAPI==4.14.0
+qrcode==7.4.2
+Requests==2.31.0
+setuptools==58.0.0

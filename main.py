@@ -17,6 +17,11 @@ import subprocess
 import os
 import re
 from telebot import TeleBot
+import qrcode
+import tempfile
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
@@ -40,7 +45,19 @@ SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 bot = TeleBot(token=os.environ['TG_TOKEN'])
 
 def  show_qrcode(qr_link:str):
-    bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='请点击链接扫码登录阿里云盘: '+qr_link)
+    # 将qr_link生成二维码
+    qr_img = qrcode.make(qr_link)
+    qr_img.get_image()
+    qr_img_path = tempfile.mktemp()
+    qr_img.save(qr_img_path)
+    qr_data = open(qr_img_path, 'rb').read()
+    
+    msg_root = MIMEMultipart()
+    msg_image = MIMEImage(qr_data, 'png')
+    msg_image.add_header('Content-ID', '<qrcode>')
+    msg_root.attach(msg_image)
+    
+    bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=msg_root.as_bytes(),caption='请扫码登录阿里云盘')
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
