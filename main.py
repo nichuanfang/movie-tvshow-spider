@@ -52,12 +52,7 @@ def  show_qrcode(qr_link:str):
     qr_img.save(qr_img_path)
     qr_data = open(qr_img_path, 'rb').read()
     
-    msg_root = MIMEMultipart()
-    msg_image = MIMEImage(qr_data, 'png')
-    msg_image.add_header('Content-ID', '<qrcode>')
-    msg_root.attach(msg_image)
-    
-    bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=msg_root.as_bytes(),caption='请扫码登录阿里云盘')
+    bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=qr_data,caption='请扫码登录阿里云盘')
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
