@@ -16,6 +16,7 @@ import sys
 import subprocess
 import os
 import re
+from telebot import TeleBot
 
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
@@ -35,6 +36,8 @@ SEASON_DICT = {
 }
 # 季图片url地址前缀
 SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
+
+bot = TeleBot(token=os.environ['TG_TOKEN'])
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
@@ -66,6 +69,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
+        bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='开始刮削电影和剧集...')
         aligo = Aligo(email=email_config)
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
         # 将配置信息base64编码更新到github的secrets中
