@@ -80,6 +80,7 @@ def prepare_for_aligo(base64_userdata:str,QQ_SMTP_PASSWORD:str):
         return aligo
     else:
         try:
+            bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='开始刮削电影和剧集...')
             with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
                 json.dump(aligo_config,aligo_file)
                 return Aligo()
