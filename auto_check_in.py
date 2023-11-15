@@ -98,24 +98,28 @@ def prepare_for_aligo(base64_userdata:str):
     else:
         try:
             with open(f'/home/runner/.aligo/aligo.json','w+',encoding='utf-8') as aligo_file:
+                # 在一个月内 不再需要重新登录 直接使用上次登录的密钥
                 json.dump(aligo_config,aligo_file)
                 # 自动签到
                 refresh_token = aligo_config['refresh_token']
+                # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
+                aligo =  Aligo(refresh_token=refresh_token,re_login=False)
+                # 自动签到
                 sign_in(refresh_token,bot)
-                return Aligo()
+                return aligo
         except:
-            # 登录失败
+            # 登录失败 重新通过扫码登录 
+            aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
+            if aligo_config_folder.exists():
+                aligo_config_folder.unlink()
             aligo = Aligo(show=show_qrcode)
             aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
-            refresh_token = aligo_config['refresh_token']
-            sign_in(refresh_token,bot)
             # 将配置信息base64编码更新到github的secrets中
             aligo_config_str = json.dumps(aligo_config)
             aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-            # 更新
+            # 执行linux命令
             os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
-             # 自动签到
-            refresh_token = aligo_config['refresh_token']
+            # 签到
             sign_in(refresh_token,bot)
             return aligo
 
