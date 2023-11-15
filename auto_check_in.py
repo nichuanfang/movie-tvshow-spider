@@ -118,6 +118,7 @@ def prepare_for_aligo(base64_userdata:str):
             # 执行linux命令
             os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
             # 签到
+            refresh_token = aligo_config['refresh_token']
             sign_in(refresh_token,bot)
             return aligo
 
