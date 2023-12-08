@@ -19,12 +19,13 @@ bot = TeleBot(token=os.environ['TG_TOKEN'])
 
 def  show_qrcode(qr_link:str):
     # 将qr_link生成二维码
+    logger.info('正在生成二维码')
     qr_img = qrcode.make(qr_link)
     qr_img.get_image()
     qr_img_path = tempfile.mktemp()
     qr_img.save(qr_img_path)
     qr_data = open(qr_img_path, 'rb').read()
-    
+    logger.info('二维码生成成功')
     bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=qr_data,caption='请扫码登录阿里云盘')
 
 def sign_in(refresh_token:str,bot:TeleBot):
