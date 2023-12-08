@@ -1,8 +1,10 @@
 #!/usr/local/bin/python
 # coding=utf-8
 from time import sleep
+import traceback
 from aligo import Aligo,EMailConfig
 from aligo.types.Enum import CheckNameMode
+from aligo.error import AligoFatalError
 from pathlib import Path
 import time
 import random
@@ -109,11 +111,15 @@ def prepare_for_aligo(base64_userdata:str):
                 
 
 def crawling(aligo:Aligo):
-    ali_drive = Alidrive(aligo)
-    # 刮削电影
-    crawl_movie(ali_drive)
-    # 刮削剧集
-    crawl_shows(ali_drive)
+    try:
+        ali_drive = Alidrive(aligo)
+        # 刮削电影
+        crawl_movie(ali_drive)
+        # 刮削剧集
+        crawl_shows(ali_drive)
+    except Exception as e:
+        bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text=f'阿里云盘登录失败! {e}')
+        traceback.print_exc()
  
 def crawl_movie(ali_drive:Alidrive):
     # 获取电影文件
