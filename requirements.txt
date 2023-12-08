@@ -1,4 +1,4 @@
-aligo
+aligo==6.1.9
 loguru==0.7.0
 pyTelegramBotAPI==4.14.0
 qrcode==7.4.2
