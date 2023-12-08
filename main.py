@@ -38,7 +38,10 @@ SEASON_DICT = {
 # 季图片url地址前缀
 SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 
-bot = TeleBot(token=os.environ['TG_TOKEN'])
+try:
+    bot = TeleBot(token=os.environ['TG_TOKEN'])
+except: 
+    bot = TeleBot(token='')
 
 def  show_qrcode(qr_link:str):
     # 将qr_link生成二维码
