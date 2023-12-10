@@ -50,7 +50,7 @@ jobs:
         id: execute
         env:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
-          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: |
           python main.py $ALIGO_TOKEN
