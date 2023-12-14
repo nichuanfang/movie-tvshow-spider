@@ -52,6 +52,7 @@ jobs:
           ALIGO_TOKEN: ${{ secrets.ALIGO_TOKEN }}
           TG_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           python main.py $ALIGO_TOKEN
 
