@@ -109,6 +109,7 @@ def prepare_for_aligo(base64_userdata:str):
             sign_in(refresh_token,bot)
             return aligo
         except:
+            print('刷新失败,重新通过扫码登录')
             # 登录失败 重新通过扫码登录 
             aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
             if aligo_config_folder.exists():
