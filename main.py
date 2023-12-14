@@ -545,6 +545,7 @@ if __name__=='__main__':
         aligo = prepare_for_aligo(base64_userdata)
     except:
         # 本地环境直接扫码
+        logger.info(f'本地环境直接扫码')
         aligo = Aligo()
         
     crawling(aligo)
