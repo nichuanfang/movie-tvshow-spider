@@ -113,8 +113,8 @@ def prepare_for_aligo(base64_userdata: str):
                 f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
         else:
             last_updated = aligo_config['last_updated']
-            if days_between(last_updated) >= 20:
-                # 超过20天 刷新凭证
+            if days_between(last_updated) >= 25:
+                # 超过25天 刷新凭证
                 # 登录成功后 将配置信息base64编码更新到github的secrets中
                 new_aligo_config = json.loads(
                     aligo_config_folder.read_text(encoding='utf8'))
