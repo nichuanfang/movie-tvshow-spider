@@ -81,6 +81,7 @@ def prepare_for_aligo(base64_userdata:str):
         new_aligo_config_str = json.dumps(new_aligo_config)
         new_aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
         os.system(f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
+        return aligo
     except Exception as e:
         logger.info(f'登录失败:{e},重新通过扫码登录')
         # 登录失败 重新通过扫码登录 
