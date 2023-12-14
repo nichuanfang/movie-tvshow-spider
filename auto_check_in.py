@@ -103,6 +103,9 @@ def prepare_for_aligo(base64_userdata:str):
             refresh_token = aligo_config['refresh_token']
             logger.info(f'刷新前的refresh_token为{refresh_token}')
             # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
+            aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
+            if aligo_config_folder.exists():
+                aligo_config_folder.unlink()
             aligo =  Aligo(refresh_token=refresh_token,re_login=False)
             new_aligo_config:dict = json.loads(aligo_config_folder.read_text(encoding='utf8'))
             logger.info(f'刷新后的refresh_token为{new_aligo_config["refresh_token"]}')
