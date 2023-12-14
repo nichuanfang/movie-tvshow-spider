@@ -34,26 +34,6 @@ def show_qrcode(qr_link: str):
                    photo=qr_data, caption='请扫码登录阿里云盘')
 
 
-def sync_refresh_token(refresh_token: str):
-    # 上传refresh_token到api项目
-    # 地址 https://api.jaychou.site/aliyunpan/refresh_token
-    # 方法 post
-    # 参数1 refresh_token
-    # 参数2 GH_TOKEN
-    #  通过requests.post()方法上传refresh_token
-    # 获取GH_TOKEN
-    try:
-        GH_TOKEN = os.environ['GH_TOKEN']
-        response = requests.post('https://api.jaychou.site/aliyunpan/refresh_token', data={
-            'refresh_token': refresh_token,
-            'GH_TOKEN': GH_TOKEN
-        })
-        if response.status_code == 200 and response.json()['code'] == 200:
-            logger.info('refresh_token同步成功!')
-    except Exception as e:
-        logger.error(f'refresh_token同步失败:{e}')
-
-
 def format_date():
     """获取今天的字符串格式化日期 格式为: 2021-09-01
 
@@ -129,7 +109,6 @@ def prepare_for_aligo(base64_userdata: str):
             aligo_config_str = json.dumps(aligo_config)
             aligo_config_str = base64.b64encode(aligo_config_str.encode(
                 encoding='utf-8')).decode(encoding='utf-8')
-            sync_refresh_token(refresh_token)
             os.system(
                 f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
         else:
@@ -144,7 +123,6 @@ def prepare_for_aligo(base64_userdata: str):
                 new_aligo_config_str = json.dumps(new_aligo_config)
                 new_aligo_config_str = base64.b64encode(
                     aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-                sync_refresh_token(refresh_token)
                 os.system(
                     f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
         sign_in(refresh_token, bot)
@@ -168,7 +146,6 @@ def prepare_for_aligo(base64_userdata: str):
         # 签到
         refresh_token = aligo_config['refresh_token']
         sign_in(refresh_token, bot)
-        sync_refresh_token(refresh_token)
         return aligo
 
 
