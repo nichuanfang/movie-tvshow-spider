@@ -79,7 +79,7 @@ def prepare_for_aligo(base64_userdata:str):
     days = (now - expire_time) / (24 * 60 * 60)
     logger.info(f'距离上次登录已过去{days}天')
     if days >= 29:
-        # 重新通过扫码登录
+        logger.info('距离上次登录已过去29天,需要重新登录')
         # 删除aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json文件
         aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
         if aligo_config_folder.exists():
@@ -98,18 +98,19 @@ def prepare_for_aligo(base64_userdata:str):
         return aligo
     else:
         try:
+            logger.info('刷新密钥')
             # 在一个月内 不再需要重新登录 直接使用上次登录的密钥
             refresh_token = aligo_config['refresh_token']
-            print(f'刷新前的refresh_token为{refresh_token}')
+            logger.info(f'刷新前的refresh_token为{refresh_token}')
             # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
             aligo =  Aligo(refresh_token=refresh_token,re_login=False)
             new_aligo_config:dict = json.loads(aligo_config_folder.read_text(encoding='utf8'))
-            print(f'刷新后的refresh_token为{new_aligo_config["refresh_token"]}')
+            logger.info(f'刷新后的refresh_token为{new_aligo_config["refresh_token"]}')
             # 自动签到
             sign_in(refresh_token,bot)
             return aligo
         except:
-            print('刷新失败,重新通过扫码登录')
+            logger.info('刷新失败,重新通过扫码登录')
             # 登录失败 重新通过扫码登录 
             aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
             if aligo_config_folder.exists():
