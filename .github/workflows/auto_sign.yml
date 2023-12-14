@@ -65,6 +65,17 @@ jobs:
           value: ${{ steps.execute.outputs.aligo_token }}
           pa_token: ${{ secrets.GH_TOKEN }}
 
+      - name: 更新ALIGO_TOKEN(tgbot)
+        uses: jon-grey/github-actions-secrets-creator@v1
+        if:
+          # 如果${{ steps.execute.outputs.aligo_token }}存在
+          steps.execute.outputs.aligo_token
+        with:
+          location: nichuanfang/tgbot
+          name: ALIGO_TOKEN
+          value: ${{ steps.execute.outputs.aligo_token }}
+          pa_token: ${{ secrets.GH_TOKEN }}
+
       - name: keep alive
         uses: Smart-Transportation/push@v1.3
         continue-on-error: true
