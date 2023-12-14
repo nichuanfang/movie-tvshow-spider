@@ -109,8 +109,8 @@ def prepare_for_aligo(base64_userdata:str):
             # 自动签到
             sign_in(refresh_token,bot)
             return aligo
-        except:
-            logger.info('刷新失败,重新通过扫码登录')
+        except Exception as e:
+            logger.info(f'刷新失败:{e},重新通过扫码登录')
             # 登录失败 重新通过扫码登录 
             aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
             if aligo_config_folder.exists():
