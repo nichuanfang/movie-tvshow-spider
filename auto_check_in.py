@@ -1,5 +1,6 @@
 # 阿里云盘自动签到
 import base64
+import datetime
 import json
 import os
 from re import S
@@ -27,6 +28,29 @@ def  show_qrcode(qr_link:str):
     qr_data = open(qr_img_path, 'rb').read()
     logger.info('二维码生成成功')
     bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],photo=qr_data,caption='请扫码登录阿里云盘')
+
+def  format_date():
+    """获取今天的字符串格式化日期 格式为: 2021-09-01
+
+    Args:
+        date (datetime.date): 日期
+
+    Returns:
+        [str]: 格式化后的日期
+    """    
+    return datetime.date.today().strftime('%Y-%m-%d')
+
+def  days_between(old_date:str):
+    """计算字符串日期与今天的天数差 格式为: 2021-09-01
+
+    Args:
+        old_date (str): _description_
+    """    
+    old_date = time.strptime(old_date,'%Y-%m-%d')
+    old_date = time.mktime(old_date)
+    now = time.time()
+    days = (now - old_date) / (24 * 60 * 60)
+    return days
 
 def sign_in(refresh_token:str,bot:TeleBot):
     tg_content = ""
@@ -63,11 +87,6 @@ def sign_in(refresh_token:str,bot:TeleBot):
 
 # 准备aligo需要的配置文件
 def prepare_for_aligo(base64_userdata:str):
-    # Path.home():   /home/runner/.aligo
-    # wd: /home/runner/work/movie-tvshow-spider/movie-tvshow-spider
-
-    # 1. mkdir -p /home/runner/.aligo
-    # 2. 将密钥信息base64解密 转为aligo.json 追加到/home/runner/.aligo目录中
     subprocess.call('mkdir -p /home/runner/.aligo',shell=True)
     aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
     try:
@@ -75,12 +94,24 @@ def prepare_for_aligo(base64_userdata:str):
         aligo_config:dict = json.loads(aligo_config_str)
         refresh_token = aligo_config['refresh_token']
         aligo =  Aligo(refresh_token=refresh_token,re_login=False)
+        # 上次更新日期
+        if  'last_updated' not in aligo_config:
+            aligo_config['last_updated'] = aligo_config['expire_time'].split('T')[0]
+            aligo_config_str = json.dumps(aligo_config)
+            aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
+            os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
+        else:
+            last_updated = aligo_config['last_updated']
+            if days_between(last_updated) >= 20:
+                # 超过20天 刷新凭证
+                # 登录成功后 将配置信息base64编码更新到github的secrets中
+                new_aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
+                # 更新上次更新日期
+                new_aligo_config['last_updated'] = format_date()
+                new_aligo_config_str = json.dumps(new_aligo_config)
+                new_aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
+                os.system(f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
         sign_in(refresh_token,bot)
-        # 登录成功后 将配置信息base64编码更新到github的secrets中
-        new_aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
-        new_aligo_config_str = json.dumps(new_aligo_config)
-        new_aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-        os.system(f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
         return aligo
     except Exception as e:
         logger.info(f'登录失败:{e},重新通过扫码登录')
@@ -90,6 +121,7 @@ def prepare_for_aligo(base64_userdata:str):
         aligo = Aligo(show=show_qrcode)
         bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='阿里云盘登录成功!')
         aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
+        aligo_config['last_updated'] = format_date()
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
         aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
