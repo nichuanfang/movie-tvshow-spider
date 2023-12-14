@@ -69,19 +69,21 @@ def prepare_for_aligo(base64_userdata:str):
     # 1. mkdir -p /home/runner/.aligo
     # 2. 将密钥信息base64解密 转为aligo.json 追加到/home/runner/.aligo目录中
     subprocess.call('mkdir -p /home/runner/.aligo',shell=True)
-    aligo_config_str = base64.b64decode(base64_userdata).decode(encoding='utf-8')
-    aligo_config:dict = json.loads(aligo_config_str)
-    expire_time:str = aligo_config['expire_time']
-    # 计算距离今天的天数
-    expire_time = time.strptime(expire_time,'%Y-%m-%dT%H:%M:%SZ')
-    expire_time = time.mktime(expire_time)
-    now = time.time()
-    days = (now - expire_time) / (24 * 60 * 60)
-    logger.info(f'距离上次登录已过去{days}天')
-    if days >= 29:
-        logger.info('距离上次登录已过去29天,需要重新登录')
-        # 删除aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json文件
-        aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
+    aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
+    try:
+        aligo_config_str = base64.b64decode(base64_userdata).decode(encoding='utf-8')
+        aligo_config:dict = json.loads(aligo_config_str)
+        refresh_token = aligo_config['refresh_token']
+        aligo =  Aligo(refresh_token=refresh_token,re_login=False)
+        sign_in(refresh_token,bot)
+        # 登录成功后 将配置信息base64编码更新到github的secrets中
+        new_aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
+        new_aligo_config_str = json.dumps(new_aligo_config)
+        new_aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
+        os.system(f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
+    except Exception as e:
+        logger.info(f'登录失败:{e},重新通过扫码登录')
+        # 登录失败 重新通过扫码登录 
         if aligo_config_folder.exists():
             aligo_config_folder.unlink()
         aligo = Aligo(show=show_qrcode)
@@ -92,44 +94,11 @@ def prepare_for_aligo(base64_userdata:str):
         aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
         # 执行linux命令
         os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
-        # 自动签到
+        # 签到
         refresh_token = aligo_config['refresh_token']
         sign_in(refresh_token,bot)
         return aligo
-    else:
-        try:
-            logger.info('刷新密钥')
-            # 在一个月内 不再需要重新登录 直接使用上次登录的密钥
-            refresh_token = aligo_config['refresh_token']
-            logger.info(f'刷新前的refresh_token为{refresh_token}')
-            # 使用refresh_token登录 如果刷新失败 直接抛异常AligoRefreshFailed
-            aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
-            if aligo_config_folder.exists():
-                aligo_config_folder.unlink()
-            aligo =  Aligo(refresh_token=refresh_token,re_login=False)
-            new_aligo_config:dict = json.loads(aligo_config_folder.read_text(encoding='utf8'))
-            logger.info(f'刷新后的refresh_token为{new_aligo_config["refresh_token"]}')
-            # 自动签到
-            sign_in(refresh_token,bot)
-            return aligo
-        except Exception as e:
-            logger.info(f'刷新失败:{e},重新通过扫码登录')
-            # 登录失败 重新通过扫码登录 
-            aligo_config_folder = Path.home().joinpath('.aligo') / 'aligo.json'
-            if aligo_config_folder.exists():
-                aligo_config_folder.unlink()
-            aligo = Aligo(show=show_qrcode)
-            bot.send_message(chat_id=os.environ['TG_CHAT_ID'],text='阿里云盘登录成功!')
-            aligo_config = json.loads(aligo_config_folder.read_text(encoding='utf8'))
-            # 将配置信息base64编码更新到github的secrets中
-            aligo_config_str = json.dumps(aligo_config)
-            aligo_config_str = base64.b64encode(aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-            # 执行linux命令
-            os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
-            # 签到
-            refresh_token = aligo_config['refresh_token']
-            sign_in(refresh_token,bot)
-            return aligo
+    
 
 if __name__=='__main__':
     try:
