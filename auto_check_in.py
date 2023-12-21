@@ -88,7 +88,7 @@ def sign_in(refresh_token: str, bot: TeleBot):
 
         tg_content += f"本次签到的奖励: {response_data['result']['name']}, {response_data['result']['description']}\n"
 
-        bot.send_message(chat_id=os.environ['TG_CHAT_ID'], text=tg_content)
+        # bot.send_message(chat_id=os.environ['TG_CHAT_ID'], text=tg_content)
         logger.info('阿里云盘自动签到成功')
 
 
