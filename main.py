@@ -1,28 +1,26 @@
 #!/usr/local/bin/python
 # coding=utf-8
-from time import sleep
-import datetime
-import traceback
-from aligo import Aligo
-from aligo.types.Enum import CheckNameMode
-from aligo.error import AligoFatalError
-from pathlib import Path
-import time
-import random
-
-import requests
-from aliyundrive.ali_drive import Alidrive
-from loguru import logger
 import base64
-from aligo.types.BaseFile import BaseFile
+import datetime
 import json
-import sys
-import subprocess
 import os
+import random
 import re
-from telebot import TeleBot
-import qrcode
+import subprocess
+import sys
 import tempfile
+import time
+import traceback
+from pathlib import Path
+from time import sleep
+
+import qrcode
+from aligo import Aligo
+from aligo.types.BaseFile import BaseFile
+from loguru import logger
+from telebot import TeleBot
+
+from aliyundrive.ali_drive import Alidrive
 
 # 剧集正则
 SEASON_PATTERN = r'((S\s*[\d]+)|(s\s*[\d]+)|(season\s*[\d]+)|(Season\s*[\d]+)|(第\s*[\d]+\s*季)|(第\s*[一|二|三|四|五|六|七|八|九|十]\s*季))'
@@ -117,7 +115,7 @@ def prepare_for_aligo(base64_userdata: str):
                     aligo_config_folder.read_text(encoding='utf8'))
                 # 更新上次更新日期
                 new_aligo_config['last_updated'] = format_date()
-                new_aligo_config_str = json.dumps(new_aligo_config)
+                json.dumps(new_aligo_config)
                 new_aligo_config_str = base64.b64encode(
                     aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
                 os.system(
