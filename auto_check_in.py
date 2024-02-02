@@ -3,20 +3,18 @@ import base64
 import datetime
 import json
 import os
-from re import S
 import subprocess
 import sys
+import tempfile
 import time
-from aligo import Aligo
-from loguru import logger
 from pathlib import Path
 
-import requests
-from aliyundrive import aliyundriveAutoCheckin
-from telebot import TeleBot
 import qrcode
-import tempfile
+from aligo import Aligo
+from loguru import logger
+from telebot import TeleBot
 
+from aliyundrive import aliyundriveAutoCheckin
 
 bot = TeleBot(token=os.environ['TG_TOKEN'])
 
@@ -101,7 +99,13 @@ def prepare_for_aligo(base64_userdata: str):
             base64_userdata).decode(encoding='utf-8')
         aligo_config: dict = json.loads(aligo_config_str)
         refresh_token = aligo_config['refresh_token']
+        device_id = aligo_config['device_id']
+        x_device_id = aligo_config['x_device_id']
         aligo = Aligo(refresh_token=refresh_token, re_login=False)
+        # 更新session的x-device-id
+        aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
+        aligo._auth.token.device_id = device_id
+        aligo._auth.token.x_device_id = x_device_id
         # 上次更新日期
         if 'last_updated' not in aligo_config:
             aligo_config['last_updated'] = aligo_config['expire_time'].split('T')[
@@ -137,6 +141,12 @@ def prepare_for_aligo(base64_userdata: str):
         aligo_config = json.loads(
             aligo_config_folder.read_text(encoding='utf8'))
         aligo_config['last_updated'] = format_date()
+        device_id = aligo_config['device_id']
+        x_device_id = aligo_config['x_device_id']
+        # 更新session的x-device-id
+        aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
+        aligo._auth.token.device_id = device_id
+        aligo._auth.token.x_device_id = x_device_id
         # 将配置信息base64编码更新到github的secrets中
         aligo_config_str = json.dumps(aligo_config)
         aligo_config_str = base64.b64encode(aligo_config_str.encode(
