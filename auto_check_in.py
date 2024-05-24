@@ -76,16 +76,15 @@ def sign_in(refresh_token: str, bot: TeleBot):
 		if isinstance(response_data, str):
 			tg_content += response_data
 		
-		logger.info(f'签到成功结果: {response_data}')
+		logger.info(f'签到结果: {response_data}')
 		# signin_count = response_data['result']['signInCount']
 		# tg_content += f"账号: {user_name} - 成功签到, 本月累计签到: {signin_count}天\n"
 		
-		response_data = aliyundriveAutoCheckin.get_reward(
-			access_token, signin_count)
-		if isinstance(response_data, str):
-			tg_content += response_data
+		# response_data = aliyundriveAutoCheckin.get_reward(
+		# 	access_token, signin_count)
+		# if isinstance(response_data, str):
+		# 	tg_content += response_data
 		
-		logger.info(f'签到奖励结果: {response_data}')
 		# tg_content += f"本次签到的奖励: {response_data['result']['name']}, {response_data['result']['description']}\n"
 		
 		# bot.send_message(chat_id=os.environ['TG_CHAT_ID'], text=tg_content)
