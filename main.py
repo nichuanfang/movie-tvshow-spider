@@ -99,33 +99,6 @@ def prepare_for_aligo(base64_userdata: str):
 		device_id = aligo_config['device_id']
 		x_device_id = aligo_config['x_device_id']
 		aligo = Aligo(refresh_token=refresh_token, re_login=False)
-		# 更新session的x-device-id
-		aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
-		aligo._auth.token.device_id = device_id
-		aligo._auth.token.x_device_id = x_device_id
-		# 上次更新日期
-		if 'last_updated' not in aligo_config:
-			aligo_config['last_updated'] = aligo_config['expire_time'].split('T')[
-				0]
-			aligo_config_str = json.dumps(aligo_config)
-			aligo_config_str = base64.b64encode(aligo_config_str.encode(
-				encoding='utf-8')).decode(encoding='utf-8')
-			os.system(
-				f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
-		else:
-			last_updated = aligo_config['last_updated']
-			if days_between(last_updated) >= 25:
-				# 超过25天 刷新凭证
-				# 登录成功后 将配置信息base64编码更新到github的secrets中
-				new_aligo_config = json.loads(
-					aligo_config_folder.read_text(encoding='utf8'))
-				# 更新上次更新日期
-				new_aligo_config['last_updated'] = format_date()
-				json.dumps(new_aligo_config)
-				new_aligo_config_str = base64.b64encode(
-					aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-				os.system(
-					f'echo "aligo_token={new_aligo_config_str}" >> "$GITHUB_OUTPUT"')
 		return aligo
 	except Exception as e:
 		logger.info(f'登录失败:{e},重新通过扫码登录')
@@ -145,12 +118,10 @@ def prepare_for_aligo(base64_userdata: str):
 		aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
 		# 将配置信息base64编码更新到github的secrets中
 		aligo_config_str = json.dumps(aligo_config)
-		aligo_config_str = base64.b64encode(aligo_config_str.encode(
+		aligo_config_code = base64.b64encode(aligo_config_str.encode(
 			encoding='utf-8')).decode(encoding='utf-8')
 		# 执行linux命令
-		os.system(f'echo "aligo_token={aligo_config_str}" >> "$GITHUB_OUTPUT"')
-		# 签到
-		refresh_token = aligo_config['refresh_token']
+		os.system(f'echo "aligo_token={aligo_config_code}" >> "$GITHUB_OUTPUT"')
 		return aligo
 
 
