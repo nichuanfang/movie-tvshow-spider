@@ -96,9 +96,13 @@ def prepare_for_aligo(base64_userdata: str):
 			base64_userdata).decode(encoding='utf-8')
 		aligo_config: dict = json.loads(aligo_config_str)
 		refresh_token = aligo_config['refresh_token']
+		aligo = Aligo(refresh_token=refresh_token, re_login=False)
+		# 更新session的x-device-id
 		device_id = aligo_config['device_id']
 		x_device_id = aligo_config['x_device_id']
-		aligo = Aligo(refresh_token=refresh_token, re_login=False)
+		aligo._auth.token.device_id = device_id
+		aligo._auth.token.x_device_id = x_device_id
+		aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
 		return aligo
 	except Exception as e:
 		logger.info(f'登录失败:{e},重新通过扫码登录')
@@ -110,7 +114,6 @@ def prepare_for_aligo(base64_userdata: str):
 		# 更新session的x-device-id
 		aligo_config = json.loads(
 			aligo_config_folder.read_text(encoding='utf8'))
-		aligo_config['last_updated'] = format_date()
 		device_id = aligo_config['device_id']
 		x_device_id = aligo_config['x_device_id']
 		aligo._auth.token.device_id = device_id

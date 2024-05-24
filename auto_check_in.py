@@ -99,26 +99,26 @@ def prepare_for_aligo(base64_userdata: str):
 			base64_userdata).decode(encoding='utf-8')
 		aligo_config: dict = json.loads(aligo_config_str)
 		refresh_token = aligo_config['refresh_token']
-		device_id = aligo_config['device_id']
-		x_device_id = aligo_config['x_device_id']
 		aligo = Aligo(refresh_token=refresh_token, re_login=False)
 		# 更新session的x-device-id
-		aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
+		aligo_config = json.loads(
+			aligo_config_folder.read_text(encoding='utf8'))
+		device_id = aligo_config['device_id']
+		x_device_id = aligo_config['x_device_id']
 		aligo._auth.token.device_id = device_id
 		aligo._auth.token.x_device_id = x_device_id
-		
-		# 登录成功后 将配置信息base64编码更新到github的secrets中
-		new_aligo_config = json.loads(
-			aligo_config_folder.read_text(encoding='utf8'))
-		new_aligo_config_str = json.dumps(new_aligo_config)
-		new_aligo_config_code = base64.b64encode(
-			new_aligo_config_str.encode(encoding='utf-8')).decode(encoding='utf-8')
-		os.system(
-			f'echo "aligo_token={new_aligo_config_code}" >> "$GITHUB_OUTPUT"')
+		aligo._session.headers.update({'x-device-id': x_device_id, 'x-signature': aligo._auth._X_SIGNATURE})
+		# 将配置信息base64编码更新到github的secrets中
+		aligo_config_str = json.dumps(aligo_config)
+		aligo_config_code = base64.b64encode(aligo_config_str.encode(
+			encoding='utf-8')).decode(encoding='utf-8')
+		# 执行linux命令
+		os.system(f'echo "aligo_token={aligo_config_code}" >> "$GITHUB_OUTPUT"')
 		
 		sign_in(refresh_token, bot)
 		return aligo
 	except Exception as e:
+		#  登录失败:string indices must be integers, not 'str',重新通过扫码登录
 		logger.info(f'登录失败:{e},重新通过扫码登录')
 		# 登录失败 重新通过扫码登录
 		if aligo_config_folder.exists():
