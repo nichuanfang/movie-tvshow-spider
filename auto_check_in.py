@@ -16,7 +16,10 @@ from telebot import TeleBot
 
 from aliyundrive import aliyundriveAutoCheckin
 
-bot = TeleBot(token=os.environ['TG_TOKEN'])
+GH_BOT_TOKEN = os.environ.get("GH_BOT_TOKEN")
+GH_BOT_CHAT_ID = os.environ.get("GH_BOT_CHAT_ID")
+
+bot = TeleBot(token=GH_BOT_TOKEN)
 
 
 def show_qrcode(qr_link: str):
@@ -28,7 +31,7 @@ def show_qrcode(qr_link: str):
 	qr_img.save(qr_img_path)
 	qr_data = open(qr_img_path, 'rb').read()
 	logger.info('二维码生成成功')
-	bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],
+	bot.send_photo(chat_id=GH_BOT_CHAT_ID,
 	               photo=qr_data, caption='请扫码登录阿里云盘')
 
 

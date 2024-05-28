@@ -41,8 +41,12 @@ SEASON_DICT = {
 # 季图片url地址前缀
 SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 
+GH_BOT_TOKEN = os.environ.get("GH_BOT_TOKEN")
+GH_BOT_CHAT_ID = os.environ.get("GH_BOT_CHAT_ID")
+
+
 try:
-	bot = TeleBot(token=os.environ['TG_TOKEN'])
+	bot = TeleBot(token=GH_BOT_TOKEN)
 except:
 	bot = TeleBot(token='')
 
@@ -56,8 +60,7 @@ def show_qrcode(qr_link: str):
 	qr_img.save(qr_img_path)
 	qr_data = open(qr_img_path, 'rb').read()
 	logger.info('二维码生成成功')
-	bot.send_photo(chat_id=os.environ['TG_CHAT_ID'],
-	               photo=qr_data, caption='请扫码登录阿里云盘')
+	bot.send_photo(chat_id=GH_BOT_CHAT_ID ,photo=qr_data, caption='请扫码登录阿里云盘')
 
 
 def format_date():
@@ -619,7 +622,7 @@ def extract_season(season_name: str):
 	if re_result:
 		season_info = re_result.group()
 		# 提取数字
-		search = re.search(r'(\d+)|(一|二|三|四|五|六|七|八|九|十)', season_info)
+		search = re.search(r'(\d+)|([一二三四五六七八九十])', season_info)
 		if search:
 			season_tag = search.group()
 			if season_tag in ('一', '二', '三', '四', '五', '六', '七', '八', '九', '十'):
