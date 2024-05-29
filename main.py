@@ -44,7 +44,6 @@ SEASON_BASE_URL = 'https://image.tmdb.org/t/p/original'
 GH_BOT_TOKEN = os.environ.get("GH_BOT_TOKEN")
 GH_BOT_CHAT_ID = os.environ.get("GH_BOT_CHAT_ID")
 
-
 try:
 	bot = TeleBot(token=GH_BOT_TOKEN)
 except:
@@ -60,7 +59,7 @@ def show_qrcode(qr_link: str):
 	qr_img.save(qr_img_path)
 	qr_data = open(qr_img_path, 'rb').read()
 	logger.info('二维码生成成功')
-	bot.send_photo(chat_id=GH_BOT_CHAT_ID ,photo=qr_data, caption='请扫码登录阿里云盘')
+	bot.send_photo(chat_id=GH_BOT_CHAT_ID, photo=qr_data, caption='请扫码登录阿里云盘')
 
 
 def format_date():
@@ -237,8 +236,7 @@ def crawl_movie(ali_drive: Alidrive):
 										movie_folder.file_id)
 							
 							else:
-								logger.warning(
-									f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
+								bot.send_message(f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
 			
 			else:
 				# 电影集文件夹
@@ -344,15 +342,14 @@ def crawl_movie(ali_drive: Alidrive):
 											ali_drive.aligo.move_file_to_trash(
 												movie_collection_folder.file_id)
 									else:
-										logger.warning(
-											f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
-				
+										bot.send_message(GH_BOT_CHAT_ID, f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
 				logger.success(f'电影集:  {movie_folder.name}刮削成功!')
 				# 检查电影集文件夹数量 如果为0 删除该文件夹
 				collection_file_list = ali_drive.get_file_list(
 					parent_file_id=movie_folder.file_id)
 				if len(list(filter(lambda x: x.type == 'folder', collection_file_list))) == 0:
 					ali_drive.move_to_trash(movie_folder.file_id)
+		bot.send_message(GH_BOT_CHAT_ID, '电影文件夹刮削完成!')
 
 
 # 解析电影和电影集名字
@@ -458,7 +455,7 @@ def crawl_shows(ali_drive: Alidrive):
 					continue
 		
 		except Exception as e:
-			logger.error(f'剧集信息刮削失败: {e},请检查剧集名称!')
+			bot.send_message(GH_BOT_CHAT_ID,f'剧集: {show_folder.name}信息刮削失败: {e},请检查剧集名称!')
 			continue
 		
 		for season in seasons:
@@ -606,6 +603,7 @@ def crawl_shows(ali_drive: Alidrive):
 		except:
 			logger.info(f'剧集:  {show_folder.name}已存在,无需新增')
 			continue
+	bot.send_message(GH_BOT_CHAT_ID,'剧集文件夹刮削完成!')
 
 
 def extract_season(season_name: str):
