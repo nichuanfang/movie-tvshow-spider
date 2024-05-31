@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 # coding=utf-8
+import asyncio
 import base64
 import datetime
 import json
@@ -129,20 +130,18 @@ def prepare_for_aligo(base64_userdata: str):
 		return aligo
 
 
-def crawling(aligo: Aligo):
+async def crawling(aligo: Aligo):
 	try:
 		ali_drive = Alidrive(aligo)
-		# 刮削电影
-		crawl_movie(ali_drive)
-		# 刮削剧集
-		crawl_shows(ali_drive)
+		# 刮削电影,刮削剧集
+		await asyncio.gather(crawl_movie(ali_drive), crawl_shows(ali_drive))
 	except Exception as e:
 		bot.send_message(
 			chat_id=os.environ['TG_CHAT_ID'], text=f'阿里云盘登录失败! {e}')
 		traceback.print_exc()
 
 
-def crawl_movie(ali_drive: Alidrive):
+async def crawl_movie(ali_drive: Alidrive):
 	# 获取电影文件
 	# 获取tmm-movies下面的所有电影文件 最大支持两级目录(即有两种可能: a.tmm/tmm-movies/电影文件夹/电影名.mkv  b.tmm/tmm-movies/电影集/电影文件夹/电影名.mkv)
 	# 通过电影名在kodi-tmdb/movies下创建一个临时空文件 '文件名.mkv'
@@ -152,6 +151,7 @@ def crawl_movie(ali_drive: Alidrive):
 	# 刮削电影文件的中文字幕 上传到同文件夹下
 	tmm_movies = ali_drive.get_folder_by_path('tmm/tmm-movies')
 	movies: BaseFile = ali_drive.get_folder_by_path('movies')  # type: ignore
+	success_crawl_movies = 0
 	if type(tmm_movies) == BaseFile:
 		
 		movie_folders = ali_drive.get_file_list(tmm_movies.file_id)
@@ -205,6 +205,7 @@ def crawl_movie(ali_drive: Alidrive):
 											f'{dirpath}/{file_name}', movie_folder.file_id)
 							if bool(ali_drive.get_file_by_path(f'tmm/tmm-movies/{movie_folder.name}/{movie_name}.nfo')):
 								logger.success(f'电影:  {movie_name}刮削成功!')
+								success_crawl_movies = success_crawl_movies + 1
 								# 上传成功就将该文件夹移动到movies文件夹中 如果movies有同名文件夹 直接覆盖
 								logger.info(
 									f'开始移动tmm电影文件夹: {movie_folder.name}至movies')
@@ -300,6 +301,7 @@ def crawl_movie(ali_drive: Alidrive):
 											f'tmm/tmm-movies/{movie_folder.name}/{movie_collection_folder.name}/{movie_name}.nfo')):
 										logger.success(
 											f'电影集电影:  {movie_folder.name}--{movie_name}刮削成功!')
+										success_crawl_movies = success_crawl_movies + 1
 										logger.info(
 											f'开始移动tmm电影集文件夹: {movie_folder.name}/{movie_collection_folder.name}至movies')
 										extract_result = extract_movie_new_name(
@@ -342,14 +344,16 @@ def crawl_movie(ali_drive: Alidrive):
 											ali_drive.aligo.move_file_to_trash(
 												movie_collection_folder.file_id)
 									else:
-										bot.send_message(GH_BOT_CHAT_ID, f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
+										bot.send_message(GH_BOT_CHAT_ID,
+										                 f'电影:  {movie_name}刮削失败! 请检查电影文件名是否正确')
 				logger.success(f'电影集:  {movie_folder.name}刮削成功!')
 				# 检查电影集文件夹数量 如果为0 删除该文件夹
 				collection_file_list = ali_drive.get_file_list(
 					parent_file_id=movie_folder.file_id)
 				if len(list(filter(lambda x: x.type == 'folder', collection_file_list))) == 0:
 					ali_drive.move_to_trash(movie_folder.file_id)
-		bot.send_message(GH_BOT_CHAT_ID, '电影文件夹刮削完成!')
+		if success_crawl_movies != 0:
+			bot.send_message(GH_BOT_CHAT_ID, f'成功刮削{success_crawl_movies}部电影!')
 
 
 # 解析电影和电影集名字
@@ -370,7 +374,7 @@ def extract_movie_new_name(movie_json_path: str):
 
 
 # 刮削剧集
-def crawl_shows(ali_drive: Alidrive):
+async def crawl_shows(ali_drive: Alidrive):
 	# !强制的规范元数据结构
 	
 	# 剧季文件夹：Season1 / Season 1 / s1 / S1 / S01 /s01
@@ -387,7 +391,7 @@ def crawl_shows(ali_drive: Alidrive):
 	tvshows: BaseFile = ali_drive.get_folder_by_path('TvShows')  # type: ignore
 	# 获取所有剧集文件合集
 	show_folders = ali_drive.get_file_list(tmm_tvshows.file_id)
-	
+	success_crawl_shows = 0
 	# 遍历剧集文件夹合集
 	for show_folder in show_folders:
 		seasons = ali_drive.get_file_list(show_folder.file_id)
@@ -455,7 +459,7 @@ def crawl_shows(ali_drive: Alidrive):
 					continue
 		
 		except Exception as e:
-			bot.send_message(GH_BOT_CHAT_ID,f'剧集: {show_folder.name}信息刮削失败: {e},请检查剧集名称!')
+			bot.send_message(GH_BOT_CHAT_ID, f'剧集: {show_folder.name}信息刮削失败: {e},请检查剧集名称!')
 			continue
 		
 		for season in seasons:
@@ -479,6 +483,7 @@ def crawl_shows(ali_drive: Alidrive):
 				ali_drive.aligo.upload_file(
 					f'kodi-tmdb/shows/{show_folder.name}/{new_season_name}/tvshow.nfo', season.file_id,
 					check_name_mode='refuse')
+				success_crawl_shows = success_crawl_shows + 1
 			except:
 				pass
 			episodes = ali_drive.get_file_list(season.file_id)
@@ -603,7 +608,8 @@ def crawl_shows(ali_drive: Alidrive):
 		except:
 			logger.info(f'剧集:  {show_folder.name}已存在,无需新增')
 			continue
-	bot.send_message(GH_BOT_CHAT_ID,'剧集文件夹刮削完成!')
+	if success_crawl_shows != 0:
+		bot.send_message(GH_BOT_CHAT_ID, f'成功刮削{success_crawl_shows}部剧集!')
 
 
 def extract_season(season_name: str):
@@ -640,7 +646,7 @@ if __name__ == '__main__':
 		logger.info(f'本地环境直接扫码')
 		aligo = Aligo()
 	
-	crawling(aligo)
+	asyncio.run(crawling(aligo))
 	
 	# 随机生成一个文件 保持仓库处于活跃
 	open('dist-version', 'w+').write(time.strftime("%Y-%m-%d", time.localtime(time.time())
